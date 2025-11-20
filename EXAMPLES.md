@@ -17,6 +17,50 @@ Resultado final:
 
 Nomes de times e jogadores permanecem em inglês (padrão no Brasil).
 
+## Uso Mais Simples - Season Navigator ⭐
+
+**A forma MAIS FÁCIL de criar uma página completa com todas as semanas da NFL:**
+
+### Passo 1: Crie uma nova página no WordPress
+- Título: "NFL - Temporada 2024"
+
+### Passo 2: Cole APENAS este shortcode:
+```
+[espn_season_navigator sport="nfl"]
+```
+
+### Passo 3: Publique!
+
+**Pronto!** Você terá:
+- ✅ Navegação entre todas as 18 semanas
+- ✅ Navegação entre as 4 rodadas de playoffs
+- ✅ Toggle entre Temporada Regular e Playoffs
+- ✅ Design profissional e responsivo
+- ✅ Tudo em português
+
+**URLs geradas automaticamente:**
+- `/sua-pagina/?week=1&seasontype=2` - Semana 1
+- `/sua-pagina/?week=18&seasontype=2` - Semana 18
+- `/sua-pagina/?week=4&seasontype=3` - Super Bowl
+
+### Variações:
+
+```
+// Apenas temporada regular
+[espn_season_navigator sport="nfl" show_playoffs="false"]
+
+// Apenas playoffs
+[espn_season_navigator sport="nfl" show_regular="false"]
+
+// Com título personalizado
+[espn_season_navigator sport="nfl" title="NFL 2024 - Temporada Completa"]
+
+// Para NBA (82 jogos na temporada)
+[espn_season_navigator sport="nba" regular_weeks="82"]
+```
+
+---
+
 ## Exemplos Básicos
 
 ### 1. Scoreboard NFL Simples

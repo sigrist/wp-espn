@@ -356,3 +356,151 @@
         font-size: 18px;
     }
 }
+
+/* Season Navigator */
+.espn-season-navigator {
+    margin: 20px 0;
+}
+
+.espn-nav-main-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.espn-nav-sub-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #666;
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+/* Toggle Temporada/Playoffs */
+.espn-season-toggle {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin: 30px 0;
+    padding: 20px 0;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.espn-season-btn {
+    padding: 12px 30px;
+    background: #333;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 16px;
+    transition: all 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.espn-season-btn:hover {
+    background: #555;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.espn-season-btn.active {
+    background: #c8102e;
+}
+
+/* Navegação de Semanas */
+.espn-week-navigation,
+.espn-playoff-navigation {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 30px 0;
+    justify-content: center;
+}
+
+.espn-week-btn,
+.espn-playoff-btn {
+    padding: 10px 15px;
+    background: #f0f0f0;
+    color: #333;
+    text-decoration: none;
+    border-radius: 6px;
+    transition: all 0.2s;
+    min-width: 90px;
+    text-align: center;
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.espn-week-btn:hover,
+.espn-playoff-btn:hover {
+    background: #ddd;
+    transform: translateY(-1px);
+}
+
+.espn-week-btn.active,
+.espn-playoff-btn.active {
+    background: #c8102e;
+    color: white;
+    font-weight: 700;
+}
+
+.espn-playoff-btn {
+    min-width: 140px;
+    padding: 12px 20px;
+    font-size: 15px;
+}
+
+/* Resultados do Navigator */
+.espn-nav-results {
+    margin-top: 30px;
+}
+
+/* Responsividade do Navigator */
+@media (max-width: 768px) {
+    .espn-nav-main-title {
+        font-size: 22px;
+    }
+
+    .espn-nav-sub-title {
+        font-size: 18px;
+    }
+
+    .espn-season-toggle {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+
+    .espn-season-btn {
+        justify-content: center;
+    }
+
+    .espn-week-navigation,
+    .espn-playoff-navigation {
+        gap: 8px;
+    }
+
+    .espn-week-btn {
+        min-width: 70px;
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+
+    .espn-playoff-btn {
+        min-width: 100%;
+        padding: 10px 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .espn-week-btn {
+        min-width: 60px;
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+}

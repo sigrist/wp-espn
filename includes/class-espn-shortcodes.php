@@ -17,6 +17,7 @@ class WP_ESPN_Shortcodes {
         add_shortcode('espn_standings', array($this, 'standings_shortcode'));
         add_shortcode('espn_upcoming', array($this, 'upcoming_games_shortcode'));
         add_shortcode('espn_team_schedule', array($this, 'team_schedule_shortcode'));
+        add_shortcode('espn_season_navigator', array($this, 'season_navigator_shortcode'));
     }
 
     /**
@@ -371,5 +372,139 @@ class WP_ESPN_Shortcodes {
             <div class="espn-schedule-name"><?php echo esc_html($name); ?></div>
         </div>
         <?php
+    }
+
+    /**
+     * Shortcode para navegação completa de temporada
+     *
+     * Uso: [espn_season_navigator sport="nfl"]
+     *
+     * @param array $atts Atributos do shortcode
+     * @return string HTML com navegação e resultados
+     */
+    public function season_navigator_shortcode($atts) {
+        $atts = shortcode_atts(array(
+            'sport' => 'nfl',
+            'limit' => 20,
+            'show_regular' => true,
+            'show_playoffs' => true,
+            'regular_weeks' => 18,
+            'title' => ''
+        ), $atts);
+
+        // Pega parâmetros da URL
+        $week = isset($_GET['week']) ? intval($_GET['week']) : 1;
+        $seasontype = isset($_GET['seasontype']) ? intval($_GET['seasontype']) : 2;
+
+        // Define títulos baseados no tipo de temporada
+        $season_names = array(
+            1 => 'Pré-temporada',
+            2 => 'Temporada Regular',
+            3 => 'Playoffs',
+            4 => 'Pro Bowl'
+        );
+        $season_name = isset($season_names[$seasontype]) ? $season_names[$seasontype] : 'Temporada Regular';
+
+        // Para playoffs, nomes específicos das semanas
+        if ($seasontype == 3) {
+            $week_names = array(
+                1 => 'Wild Card',
+                2 => 'Divisional Round',
+                3 => 'Conference Championships',
+                4 => 'Super Bowl'
+            );
+            $week_title = isset($week_names[$week]) ? $week_names[$week] : "Semana $week";
+        } else {
+            $week_title = "Semana $week";
+        }
+
+        // Gera URL base para navegação
+        $base_url = esc_url(remove_query_arg(array('week', 'seasontype')));
+
+        ob_start();
+        ?>
+        <div class="espn-season-navigator">
+            <?php if ($atts['title']): ?>
+                <h1 class="espn-nav-main-title"><?php echo esc_html($atts['title']); ?></h1>
+            <?php else: ?>
+                <h1 class="espn-nav-main-title"><?php echo esc_html(strtoupper($atts['sport'])) . ' - ' . esc_html($season_name); ?></h1>
+            <?php endif; ?>
+
+            <h2 class="espn-nav-sub-title"><?php echo esc_html($week_title); ?></h2>
+
+            <!-- Toggle entre Temporada Regular e Playoffs -->
+            <div class="espn-season-toggle">
+                <?php if ($atts['show_regular']): ?>
+                    <a href="<?php echo esc_url(add_query_arg(array('week' => 1, 'seasontype' => 2), $base_url)); ?>"
+                       class="espn-season-btn <?php echo $seasontype == 2 ? 'active' : ''; ?>">
+                        📅 Temporada Regular
+                    </a>
+                <?php endif; ?>
+                <?php if ($atts['show_playoffs']): ?>
+                    <a href="<?php echo esc_url(add_query_arg(array('week' => 1, 'seasontype' => 3), $base_url)); ?>"
+                       class="espn-season-btn <?php echo $seasontype == 3 ? 'active' : ''; ?>">
+                        🏆 Playoffs
+                    </a>
+                <?php endif; ?>
+            </div>
+
+            <!-- Navegação entre Semanas -->
+            <?php if ($seasontype == 2): // Temporada Regular ?>
+                <div class="espn-week-navigation">
+                    <?php for ($w = 1; $w <= $atts['regular_weeks']; $w++): ?>
+                        <a href="<?php echo esc_url(add_query_arg(array('week' => $w, 'seasontype' => 2), $base_url)); ?>"
+                           class="espn-week-btn <?php echo $w == $week ? 'active' : ''; ?>">
+                            Semana <?php echo $w; ?>
+                        </a>
+                    <?php endfor; ?>
+                </div>
+            <?php elseif ($seasontype == 3): // Playoffs ?>
+                <div class="espn-playoff-navigation">
+                    <a href="<?php echo esc_url(add_query_arg(array('week' => 1, 'seasontype' => 3), $base_url)); ?>"
+                       class="espn-playoff-btn <?php echo $week == 1 ? 'active' : ''; ?>">
+                        Wild Card
+                    </a>
+                    <a href="<?php echo esc_url(add_query_arg(array('week' => 2, 'seasontype' => 3), $base_url)); ?>"
+                       class="espn-playoff-btn <?php echo $week == 2 ? 'active' : ''; ?>">
+                        Divisional
+                    </a>
+                    <a href="<?php echo esc_url(add_query_arg(array('week' => 3, 'seasontype' => 3), $base_url)); ?>"
+                       class="espn-playoff-btn <?php echo $week == 3 ? 'active' : ''; ?>">
+                        Conference
+                    </a>
+                    <a href="<?php echo esc_url(add_query_arg(array('week' => 4, 'seasontype' => 3), $base_url)); ?>"
+                       class="espn-playoff-btn <?php echo $week == 4 ? 'active' : ''; ?>">
+                        Super Bowl
+                    </a>
+                </div>
+            <?php endif; ?>
+
+            <!-- Resultados -->
+            <div class="espn-nav-results">
+                <?php
+                $data = WP_ESPN_API::get_scoreboard(
+                    $atts['sport'],
+                    null,
+                    $atts['limit'],
+                    $week,
+                    $seasontype
+                );
+
+                if (is_wp_error($data)) {
+                    echo '<div class="espn-error">Erro ao carregar dados: ' . esc_html($data->get_error_message()) . '</div>';
+                } elseif (empty($data['events'])) {
+                    echo '<div class="espn-no-games">Nenhum jogo disponível para esta semana.</div>';
+                } else {
+                    echo '<div class="espn-games-container">';
+                    foreach ($data['events'] as $game) {
+                        $this->render_game_card($game);
+                    }
+                    echo '</div>';
+                }
+                ?>
+            </div>
+        </div>
+        <?php
+        return ob_get_clean();
     }
 }

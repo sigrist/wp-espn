@@ -28,7 +28,43 @@ Plugin WordPress para exibir resultados de jogos, tabelas de classificação e p
 
 ## Shortcodes Disponíveis
 
-### 1. Scoreboard (Resultados de Jogos)
+### 1. Season Navigator (Navegação de Temporada Completa) ⭐ NOVO!
+
+Exibe navegação completa com todas as semanas da temporada + playoffs em uma única página.
+
+```
+[espn_season_navigator sport="nfl"]
+```
+
+**Este é o shortcode mais fácil de usar!** Crie UMA página, cole o shortcode e pronto! Não precisa criar 22 páginas nem escrever código PHP.
+
+**Parâmetros:**
+- `sport`: Código do esporte (nfl, nba, mlb, nhl, soccer, college-football, college-basketball)
+- `limit`: Número de jogos a exibir por semana (padrão: 20)
+- `regular_weeks`: Número de semanas da temporada regular (padrão: 18 para NFL)
+- `show_regular`: Mostrar botão temporada regular - true/false (padrão: true)
+- `show_playoffs`: Mostrar botão playoffs - true/false (padrão: true)
+- `title`: Título personalizado (opcional)
+
+**Exemplos:**
+
+```
+[espn_season_navigator sport="nfl"]
+[espn_season_navigator sport="nfl" title="NFL 2024 - Todas as Semanas"]
+[espn_season_navigator sport="nba" regular_weeks="82" limit="15"]
+[espn_season_navigator sport="nfl" show_playoffs="false"]
+```
+
+**Funcionalidades:**
+- ✅ Navegação automática entre 18 semanas + 4 rodadas de playoffs
+- ✅ Toggle entre Temporada Regular e Playoffs
+- ✅ Destaque visual da semana atual
+- ✅ URLs amigáveis com query strings (?week=1&seasontype=2)
+- ✅ Design responsivo para mobile
+- ✅ Tradução automática para pt_BR
+- ✅ Zero configuração necessária
+
+### 2. Scoreboard (Resultados de Jogos)
 
 Exibe os resultados dos jogos recentes ou em andamento.
 
