@@ -13,11 +13,23 @@ class WP_ESPN_Shortcodes {
      * Registra todos os shortcodes
      */
     public function register() {
+        // Shortcodes genéricos (mantidos para compatibilidade)
         add_shortcode('espn_scoreboard', array($this, 'scoreboard_shortcode'));
         add_shortcode('espn_standings', array($this, 'standings_shortcode'));
         add_shortcode('espn_upcoming', array($this, 'upcoming_games_shortcode'));
         add_shortcode('espn_team_schedule', array($this, 'team_schedule_shortcode'));
         add_shortcode('espn_season_navigator', array($this, 'season_navigator_shortcode'));
+
+        // Shortcodes específicos para NFL
+        add_shortcode('espn_nfl_scoreboard', array($this, 'nfl_scoreboard_shortcode'));
+        add_shortcode('espn_nfl_standings', array($this, 'nfl_standings_shortcode'));
+        add_shortcode('espn_nfl_navigator', array($this, 'nfl_navigator_shortcode'));
+        add_shortcode('espn_nfl_upcoming', array($this, 'nfl_upcoming_shortcode'));
+
+        // Shortcodes específicos para NBA (futuro)
+        add_shortcode('espn_nba_scoreboard', array($this, 'nba_scoreboard_shortcode'));
+        add_shortcode('espn_nba_standings', array($this, 'nba_standings_shortcode'));
+        add_shortcode('espn_nba_upcoming', array($this, 'nba_upcoming_shortcode'));
     }
 
     /**
@@ -653,5 +665,157 @@ class WP_ESPN_Shortcodes {
             'week' => max(1, $week),
             'seasontype' => in_array($seasontype, array(1, 2, 3, 4)) ? $seasontype : 2
         );
+    }
+
+    // ========================================
+    // Shortcodes Específicos para NFL
+    // ========================================
+
+    /**
+     * Shortcode específico para scoreboard NFL
+     *
+     * Uso: [espn_nfl_scoreboard week="1" seasontype="2" limit="10"]
+     *
+     * @param array $atts Atributos do shortcode
+     * @return string HTML do scoreboard
+     */
+    public function nfl_scoreboard_shortcode($atts) {
+        $atts = shortcode_atts(array(
+            'week' => null,
+            'seasontype' => null,
+            'limit' => 10,
+            'title' => 'NFL - Resultados'
+        ), $atts);
+
+        // Força o esporte para NFL
+        $atts['sport'] = 'nfl';
+
+        return $this->scoreboard_shortcode($atts);
+    }
+
+    /**
+     * Shortcode específico para standings NFL
+     *
+     * Uso: [espn_nfl_standings group_by="division" season="2023"]
+     *
+     * @param array $atts Atributos do shortcode
+     * @return string HTML da tabela
+     */
+    public function nfl_standings_shortcode($atts) {
+        $atts = shortcode_atts(array(
+            'group_by' => 'division', // Por padrão, NFL mostra por divisão
+            'season' => date('Y'),
+            'title' => 'NFL - Classificação'
+        ), $atts);
+
+        // Força o esporte para NFL
+        $atts['sport'] = 'nfl';
+
+        return $this->standings_shortcode($atts);
+    }
+
+    /**
+     * Shortcode específico para navegador de temporada NFL
+     *
+     * Uso: [espn_nfl_navigator title="Temporada NFL 2023-2024"]
+     *
+     * @param array $atts Atributos do shortcode
+     * @return string HTML do navegador
+     */
+    public function nfl_navigator_shortcode($atts) {
+        $atts = shortcode_atts(array(
+            'title' => 'NFL - Temporada ' . date('Y')
+        ), $atts);
+
+        // Força o esporte para NFL
+        $atts['sport'] = 'nfl';
+
+        return $this->season_navigator_shortcode($atts);
+    }
+
+    /**
+     * Shortcode específico para próximos jogos NFL
+     *
+     * Uso: [espn_nfl_upcoming limit="5"]
+     *
+     * @param array $atts Atributos do shortcode
+     * @return string HTML dos próximos jogos
+     */
+    public function nfl_upcoming_shortcode($atts) {
+        $atts = shortcode_atts(array(
+            'limit' => 5,
+            'title' => 'NFL - Próximos Jogos'
+        ), $atts);
+
+        // Força o esporte para NFL
+        $atts['sport'] = 'nfl';
+
+        return $this->upcoming_games_shortcode($atts);
+    }
+
+    // ========================================
+    // Shortcodes Específicos para NBA
+    // ========================================
+
+    /**
+     * Shortcode específico para scoreboard NBA
+     *
+     * Uso: [espn_nba_scoreboard limit="10"]
+     *
+     * @param array $atts Atributos do shortcode
+     * @return string HTML do scoreboard
+     */
+    public function nba_scoreboard_shortcode($atts) {
+        $atts = shortcode_atts(array(
+            'limit' => 10,
+            'date' => null,
+            'title' => 'NBA - Resultados'
+        ), $atts);
+
+        // Força o esporte para NBA
+        $atts['sport'] = 'nba';
+
+        return $this->scoreboard_shortcode($atts);
+    }
+
+    /**
+     * Shortcode específico para standings NBA
+     *
+     * Uso: [espn_nba_standings group_by="conference"]
+     *
+     * @param array $atts Atributos do shortcode
+     * @return string HTML da tabela
+     */
+    public function nba_standings_shortcode($atts) {
+        $atts = shortcode_atts(array(
+            'group_by' => 'conference', // NBA geralmente mostra por conferência
+            'season' => date('Y'),
+            'title' => 'NBA - Classificação'
+        ), $atts);
+
+        // Força o esporte para NBA
+        $atts['sport'] = 'nba';
+
+        return $this->standings_shortcode($atts);
+    }
+
+    /**
+     * Shortcode específico para próximos jogos NBA
+     *
+     * Uso: [espn_nba_upcoming limit="10"]
+     *
+     * @param array $atts Atributos do shortcode
+     * @return string HTML dos próximos jogos
+     */
+    public function nba_upcoming_shortcode($atts) {
+        $atts = shortcode_atts(array(
+            'limit' => 10,
+            'title' => 'NBA - Próximos Jogos'
+        ), $atts);
+
+        // Força o esporte para NBA
+        $atts['sport'] = 'nba';
+
+        return $this->upcoming_games_shortcode($atts);
     }
 }

@@ -29,6 +29,12 @@ Plugin WordPress para exibir resultados de jogos, tabelas de classificação e p
 
 ## Shortcodes Disponíveis
 
+> 💡 **NOVO!** Agora temos **shortcodes específicos por esporte** que são mais simples de usar:
+> - `[espn_nfl_navigator]`, `[espn_nfl_standings]`, `[espn_nfl_scoreboard]`, `[espn_nfl_upcoming]`
+> - `[espn_nba_scoreboard]`, `[espn_nba_standings]`, `[espn_nba_upcoming]`
+>
+> Veja todos os detalhes em: **[SPORT-SPECIFIC-SHORTCODES.md](SPORT-SPECIFIC-SHORTCODES.md)**
+
 ### 1. Season Navigator (Navegação de Temporada Completa) ⭐ NOVO!
 
 Exibe navegação completa com todas as semanas da temporada + playoffs em uma única página.
