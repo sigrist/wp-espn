@@ -105,8 +105,20 @@ class WP_ESPN_Shortcodes {
             'season' => date('Y'),
             'title' => 'Classificação',
             'group_by' => 'conference', // 'conference' ou 'division'
-            'league' => null // Liga específica para soccer
+            'league' => null, // Liga específica para soccer
+            'columns' => null // Colunas a exibir (separadas por vírgula)
         ), $atts);
+
+        // Define colunas padrão baseado no esporte se não especificado
+        if (!$atts['columns']) {
+            if ($atts['sport'] === 'soccer') {
+                // Para futebol: todas as colunas incluindo empates e gols
+                $atts['columns'] = 'rank,team,points,gamesPlayed,wins,draws,losses,pointsFor,pointsAgainst,pointDifferential';
+            } else {
+                // Para esportes americanos: formato tradicional
+                $atts['columns'] = 'rank,team,wins,losses,winPercent';
+            }
+        }
 
         $data = WP_ESPN_API::get_standings($atts['sport'], $atts['season'], $atts['league']);
 
@@ -178,7 +190,7 @@ class WP_ESPN_Shortcodes {
                     <?php endif; ?>
 
                     <?php if (isset($conference['standings'])): ?>
-                        <?php $this->render_standings_table($conference['standings']); ?>
+                        <?php $this->render_standings_table($conference['standings'], $atts['columns'], $atts['sport']); ?>
                     <?php endif; ?>
                 </div>
             <?php endforeach; ?>
@@ -380,19 +392,38 @@ class WP_ESPN_Shortcodes {
      *
      * @param array $standings Dados da classificação
      */
-    private function render_standings_table($standings) {
+    private function render_standings_table($standings, $columns = 'rank,team,wins,losses,winPercent', $sport = 'nfl') {
         if (empty($standings['entries'])) {
             return;
         }
+
+        // Converte string de colunas em array
+        $columns_array = array_map('trim', explode(',', $columns));
+
+        // Mapeia nomes de colunas para labels e stats da API
+        $column_config = array(
+            'rank' => array('label' => 'Pos', 'stat' => array('rank', 'playoffSeed')),
+            'team' => array('label' => 'Time', 'stat' => null),
+            'points' => array('label' => 'P', 'stat' => array('points')),
+            'gamesPlayed' => array('label' => 'J', 'stat' => array('gamesPlayed', 'played')),
+            'wins' => array('label' => 'V', 'stat' => array('wins')),
+            'draws' => array('label' => 'E', 'stat' => array('ties', 'draws')),
+            'losses' => array('label' => 'D', 'stat' => array('losses')),
+            'pointsFor' => array('label' => $sport === 'soccer' ? 'GP' : 'PF', 'stat' => array('pointsFor', 'goalsFor')),
+            'pointsAgainst' => array('label' => $sport === 'soccer' ? 'GC' : 'PA', 'stat' => array('pointsAgainst', 'goalsAgainst')),
+            'pointDifferential' => array('label' => $sport === 'soccer' ? 'SG' : '+/-', 'stat' => array('pointDifferential', 'differential', 'goalDifference')),
+            'winPercent' => array('label' => '%', 'stat' => array('winPercent', 'gamesBehind'))
+        );
+
         ?>
         <table class="espn-standings-table">
             <thead>
                 <tr>
-                    <th>Pos</th>
-                    <th>Time</th>
-                    <th>V</th>
-                    <th>D</th>
-                    <th>%</th>
+                    <?php foreach ($columns_array as $col): ?>
+                        <?php if (isset($column_config[$col])): ?>
+                            <th><?php echo esc_html($column_config[$col]['label']); ?></th>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
                 </tr>
             </thead>
             <tbody>
@@ -406,25 +437,32 @@ class WP_ESPN_Shortcodes {
                             $stats_map[$stat['name']] = $stat;
                         }
                     }
-
-                    // Extrai valores comuns
-                    $rank = $stats_map['rank']['value'] ?? ($stats_map['playoffSeed']['value'] ?? '-');
-                    $wins = $stats_map['wins']['displayValue'] ?? ($stats_map['wins']['value'] ?? '-');
-                    $losses = $stats_map['losses']['displayValue'] ?? ($stats_map['losses']['value'] ?? '-');
-                    $winPercent = $stats_map['winPercent']['displayValue'] ?? ($stats_map['gamesBehind']['displayValue'] ?? '-');
                     ?>
                     <tr>
-                        <td><?php echo esc_html($rank); ?></td>
-                        <td class="espn-standings-team">
-                            <?php $logo = WP_ESPN_API::get_team_logo($entry['team']); ?>
-                            <?php if ($logo): ?>
-                                <img src="<?php echo esc_url($logo); ?>" alt="" class="espn-team-logo-small">
+                        <?php foreach ($columns_array as $col): ?>
+                            <?php if ($col === 'team'): ?>
+                                <td class="espn-standings-team">
+                                    <?php $logo = WP_ESPN_API::get_team_logo($entry['team']); ?>
+                                    <?php if ($logo): ?>
+                                        <img src="<?php echo esc_url($logo); ?>" alt="" class="espn-team-logo-small">
+                                    <?php endif; ?>
+                                    <?php echo esc_html($entry['team']['displayName'] ?? $entry['team']['name'] ?? 'Time'); ?>
+                                </td>
+                            <?php elseif (isset($column_config[$col])): ?>
+                                <?php
+                                // Busca o valor da stat, tentando vários nomes possíveis
+                                $value = '-';
+                                $stat_names = (array) $column_config[$col]['stat'];
+                                foreach ($stat_names as $stat_name) {
+                                    if (isset($stats_map[$stat_name])) {
+                                        $value = $stats_map[$stat_name]['displayValue'] ?? $stats_map[$stat_name]['value'] ?? '-';
+                                        break;
+                                    }
+                                }
+                                ?>
+                                <td><?php echo esc_html($value); ?></td>
                             <?php endif; ?>
-                            <?php echo esc_html($entry['team']['displayName'] ?? $entry['team']['name'] ?? 'Time'); ?>
-                        </td>
-                        <td><?php echo esc_html($wins); ?></td>
-                        <td><?php echo esc_html($losses); ?></td>
-                        <td><?php echo esc_html($winPercent); ?></td>
+                        <?php endforeach; ?>
                     </tr>
                 <?php endforeach; ?>
             </tbody>
@@ -957,7 +995,8 @@ class WP_ESPN_Shortcodes {
         $atts = shortcode_atts(array(
             'league' => 'bra.1', // Brasileirão por padrão
             'season' => date('Y'),
-            'title' => null // Será definido baseado na liga
+            'title' => null, // Será definido baseado na liga
+            'columns' => null // Colunas customizadas (opcional)
         ), $atts);
 
         // Define título baseado na liga se não foi especificado
