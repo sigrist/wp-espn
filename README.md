@@ -8,6 +8,7 @@ Plugin WordPress para exibir resultados de jogos, tabelas de classificação e p
 - **Tabelas de Classificação**: Mostra as classificações por conferência/divisão
 - **Próximos Jogos**: Lista os jogos agendados
 - **Calendário de Times**: Exibe o calendário completo de um time específico
+- **Tradução para pt_BR**: Termos comuns, status de jogos e datas automaticamente traduzidos
 
 ## Esportes Suportados
 
@@ -132,6 +133,64 @@ Exibe o calendário completo de um time específico.
 - `bos` - Boston Red Sox
 - `lad` - Los Angeles Dodgers
 - `sf` - San Francisco Giants
+
+## Internacionalização (i18n)
+
+O plugin possui **suporte completo para português brasileiro (pt_BR)**. Embora a API da ESPN retorne dados em inglês, o plugin traduz automaticamente:
+
+### O que é traduzido
+
+- **Status de jogos**: "Final", "Live", "Scheduled" → "Final", "Ao Vivo", "Agendado"
+- **Períodos**: "1st Quarter", "Halftime", "Overtime" → "1º Quarto", "Intervalo", "Prorrogação"
+- **Conferências/Divisões**: "AFC East", "Western Conference" → "AFC Leste", "Conferência Oeste"
+- **Datas e horas**: Formatação automática em português (dd/mm/aaaa hh:mm)
+- **Termos gerais**: "vs", "at", "Week" → "vs", "em", "Semana"
+
+### O que NÃO é traduzido
+
+- **Nomes de times**: Mantidos em inglês (ex: "Dallas Cowboys", "Los Angeles Lakers")
+- **Nomes de jogadores**: Mantidos originais
+- **Nomes de estádios**: Mantidos originais
+
+### Customização de Traduções
+
+Você pode adicionar suas próprias traduções usando filtros WordPress:
+
+```php
+// Customizar tradução de status
+add_filter('wp_espn_translate_game_status', function($translated, $original) {
+    if ($original === 'postponed') {
+        return 'Reagendado';
+    }
+    return $translated;
+}, 10, 2);
+
+// Customizar tradução de período
+add_filter('wp_espn_translate_period', function($translated, $original) {
+    if ($original === 'Halftime') {
+        return 'Meio-tempo';
+    }
+    return $translated;
+}, 10, 2);
+
+// Customizar tradução de conferência
+add_filter('wp_espn_translate_conference', function($translated, $original, $sport) {
+    if ($sport === 'nfl' && $original === 'AFC East') {
+        return 'Divisão Leste da AFC';
+    }
+    return $translated;
+}, 10, 3);
+```
+
+### Adicionar Traduções Programaticamente
+
+```php
+// Adicionar nova tradução de status
+WP_ESPN_i18n::add_translation('game_status', 'weather_delay', 'Adiado por Clima');
+
+// Adicionar nova tradução de período
+WP_ESPN_i18n::add_translation('periods', 'Shootout', 'Disputa de Pênaltis');
+```
 
 ## Cache
 

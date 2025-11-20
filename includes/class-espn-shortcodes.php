@@ -96,7 +96,8 @@ class WP_ESPN_Shortcodes {
 
             <?php foreach ($data['children'] as $conference): ?>
                 <div class="espn-conference">
-                    <h4 class="espn-conference-name"><?php echo esc_html($conference['name']); ?></h4>
+                    <?php $conference_name = WP_ESPN_i18n::translate_conference($conference['name'], $atts['sport']); ?>
+                    <h4 class="espn-conference-name"><?php echo esc_html($conference_name); ?></h4>
 
                     <?php if (isset($conference['standings'])): ?>
                         <?php $this->render_standings_table($conference['standings']); ?>
@@ -233,11 +234,12 @@ class WP_ESPN_Shortcodes {
             return;
         }
 
-        $game_date = WP_ESPN_API::format_game_date($game['date']);
+        $game_date = WP_ESPN_i18n::format_date($game['date']);
+        $status_translated = WP_ESPN_i18n::translate_text($status);
         ?>
         <div class="espn-game-card <?php echo esc_attr('status-' . $state); ?>">
             <div class="espn-game-header">
-                <span class="espn-game-status"><?php echo esc_html($status); ?></span>
+                <span class="espn-game-status"><?php echo esc_html($status_translated); ?></span>
                 <span class="espn-game-date"><?php echo esc_html($game_date); ?></span>
             </div>
 
@@ -319,7 +321,7 @@ class WP_ESPN_Shortcodes {
     private function render_upcoming_game($game) {
         $competitions = $game['competitions'][0] ?? array();
         $competitors = $competitions['competitors'] ?? array();
-        $game_date = WP_ESPN_API::format_game_date($game['date']);
+        $game_date = WP_ESPN_i18n::format_date($game['date']);
 
         $home_team = null;
         $away_team = null;
@@ -353,7 +355,7 @@ class WP_ESPN_Shortcodes {
      * @param array $event Dados do evento
      */
     private function render_schedule_item($event) {
-        $game_date = WP_ESPN_API::format_game_date($event['date']);
+        $game_date = WP_ESPN_i18n::format_date($event['date']);
         $name = $event['name'] ?? 'Jogo';
         ?>
         <div class="espn-schedule-item">

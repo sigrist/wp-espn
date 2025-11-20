@@ -21,6 +21,7 @@ define('WP_ESPN_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('WP_ESPN_PLUGIN_URL', plugin_dir_url(__FILE__));
 
 // Carrega as classes necessárias
+require_once WP_ESPN_PLUGIN_DIR . 'includes/class-espn-i18n.php';
 require_once WP_ESPN_PLUGIN_DIR . 'includes/class-espn-api.php';
 require_once WP_ESPN_PLUGIN_DIR . 'includes/class-espn-shortcodes.php';
 

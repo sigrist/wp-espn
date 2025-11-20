@@ -2,6 +2,17 @@
 
 Este arquivo contém exemplos práticos de como usar o plugin ESPN Sports Scores em suas páginas e posts do WordPress.
 
+## Tradução Automática pt_BR
+
+O plugin traduz automaticamente termos da API da ESPN para português brasileiro:
+
+- ✅ Status: "Final" → "Final", "Live" → "Ao Vivo"
+- ✅ Períodos: "1st Quarter" → "1º Quarto", "Halftime" → "Intervalo"
+- ✅ Conferências: "AFC East" → "AFC Leste"
+- ✅ Datas: Formato brasileiro (dd/mm/aaaa hh:mm)
+
+Nomes de times e jogadores permanecem em inglês (padrão no Brasil).
+
 ## Exemplos Básicos
 
 ### 1. Scoreboard NFL Simples
@@ -219,12 +230,47 @@ Adicione estilos personalizados no seu tema:
 }
 ```
 
+## Customização de Traduções
+
+### Exemplo: Customizar termo "Halftime" para "Meio-tempo"
+
+Adicione no `functions.php` do seu tema:
+
+```php
+add_filter('wp_espn_translate_period', function($translated, $original) {
+    if ($original === 'Halftime') {
+        return 'Meio-tempo';
+    }
+    return $translated;
+}, 10, 2);
+```
+
+### Exemplo: Adicionar nova tradução
+
+```php
+// Adicionar tradução personalizada
+add_action('init', function() {
+    WP_ESPN_i18n::add_translation('game_status', 'weather_delay', 'Atraso Climático');
+});
+```
+
+### Exemplo: Customizar formato de data
+
+```php
+add_filter('wp_espn_format_date', function($formatted, $original_date, $format) {
+    // Usar formato personalizado: "Seg, 25/12 às 14:30"
+    $timestamp = strtotime($original_date);
+    return date_i18n('D, d/m \à\s H:i', $timestamp);
+}, 10, 3);
+```
+
 ## Dicas de Uso
 
 1. **Performance**: Use o parâmetro `limit` para controlar quantos jogos são exibidos
 2. **Cache**: O plugin cacheia os dados por 1 hora automaticamente
 3. **Responsividade**: Todos os componentes são responsivos por padrão
 4. **Atualização**: Para jogos ao vivo, considere usar um plugin de auto-refresh da página
+5. **Idioma**: Todas as traduções podem ser customizadas via filtros WordPress
 
 ## Troubleshooting
 
