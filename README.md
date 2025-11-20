@@ -115,6 +115,7 @@ Exibe a tabela de classificação de uma liga.
 - `sport`: Código do esporte
 - `season`: Ano da temporada (padrão: ano atual)
 - `title`: Título da seção (padrão: "Classificação")
+- `group_by`: Agrupar por 'conference' ou 'division' (padrão: 'conference')
 
 **Exemplos:**
 
@@ -122,7 +123,13 @@ Exibe a tabela de classificação de uma liga.
 [espn_standings sport="nba"]
 [espn_standings sport="nfl" season="2023"]
 [espn_standings sport="mlb" title="MLB Standings"]
+[espn_standings sport="nfl" group_by="division"]
+[espn_standings sport="nfl" group_by="conference"]
 ```
+
+**Diferença entre conference e division:**
+- `group_by="conference"`: Agrupa por conferência (ex: AFC, NFC)
+- `group_by="division"`: Mostra divisões separadamente (ex: AFC East, AFC West, NFC East, NFC West)
 
 ### 3. Upcoming Games (Próximos Jogos)
 

@@ -82,6 +82,16 @@ Nomes de times e jogadores permanecem em inglês (padrão no Brasil).
 [espn_standings sport="nfl" title="NFL Standings 2023"]
 ```
 
+**Variações:**
+
+```
+// Por conferência (AFC e NFC)
+[espn_standings sport="nfl" group_by="conference"]
+
+// Por divisão (AFC East, AFC West, NFC East, NFC West, etc)
+[espn_standings sport="nfl" group_by="division" title="NFL - Por Divisão"]
+```
+
 ### 4. Próximos Jogos NBA
 
 ```
