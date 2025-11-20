@@ -853,12 +853,20 @@ class WP_ESPN_Shortcodes {
             'league' => 'bra.1', // Brasileirão por padrão
             'limit' => 10,
             'date' => null,
+            'days_back' => 7, // Últimos 7 dias por padrão
             'title' => null // Será definido baseado na liga
         ), $atts);
 
         // Define título baseado na liga se não foi especificado
         if (!$atts['title']) {
             $atts['title'] = $this->get_soccer_league_name($atts['league']) . ' - Resultados';
+        }
+
+        // Para futebol, se não especificou data, busca últimos N dias
+        if (!$atts['date']) {
+            $past_date = date('Ymd', strtotime('-' . $atts['days_back'] . ' days'));
+            $today = date('Ymd');
+            $atts['date'] = $past_date . '-' . $today;
         }
 
         // Força o esporte para soccer
@@ -906,6 +914,7 @@ class WP_ESPN_Shortcodes {
         $atts = shortcode_atts(array(
             'league' => 'bra.1', // Brasileirão por padrão
             'limit' => 10,
+            'days' => 14, // Próximos 14 dias
             'title' => null // Será definido baseado na liga
         ), $atts);
 
@@ -914,10 +923,54 @@ class WP_ESPN_Shortcodes {
             $atts['title'] = $this->get_soccer_league_name($atts['league']) . ' - Próximos Jogos';
         }
 
-        // Força o esporte para soccer
-        $atts['sport'] = 'soccer';
+        // Para futebol, upcoming busca por range de datas futuras
+        $today = date('Ymd');
+        $future_date = date('Ymd', strtotime('+' . $atts['days'] . ' days'));
+        $date_range = $today . '-' . $future_date;
 
-        return $this->upcoming_games_shortcode($atts);
+        // Busca jogos no range de datas
+        $data = WP_ESPN_API::get_scoreboard(
+            'soccer',
+            $date_range,
+            50, // Busca mais jogos para garantir que temos suficientes futuros
+            null,
+            null,
+            $atts['league']
+        );
+
+        if (is_wp_error($data)) {
+            return '<div class="espn-error">Erro ao carregar dados: ' . $data->get_error_message() . '</div>';
+        }
+
+        if (empty($data['events'])) {
+            return '<div class="espn-no-games">Nenhum jogo agendado.</div>';
+        }
+
+        // Filtra apenas jogos futuros (status = pre)
+        $upcoming = array_filter($data['events'], function($game) {
+            $status = $game['status']['type']['state'] ?? '';
+            return $status === 'pre';
+        });
+
+        if (empty($upcoming)) {
+            return '<div class="espn-no-games">Nenhum jogo agendado.</div>';
+        }
+
+        ob_start();
+        ?>
+        <div class="espn-upcoming">
+            <?php if ($atts['title']): ?>
+                <h3 class="espn-title"><?php echo esc_html($atts['title']); ?></h3>
+            <?php endif; ?>
+
+            <div class="espn-games-list">
+                <?php foreach (array_slice($upcoming, 0, $atts['limit']) as $game): ?>
+                    <?php $this->render_upcoming_game($game); ?>
+                <?php endforeach; ?>
+            </div>
+        </div>
+        <?php
+        return ob_get_clean();
     }
 
     /**

@@ -199,7 +199,7 @@ Lista os próximos jogos agendados da NBA.
 
 ### `[espn_soccer_scoreboard]`
 
-Exibe resultados de jogos de futebol. **Requer o parâmetro `league`** para especificar qual campeonato.
+Exibe resultados de jogos de futebol (jogos passados e em andamento). **Requer o parâmetro `league`** para especificar qual campeonato.
 
 **Uso básico:**
 ```
@@ -209,15 +209,18 @@ Exibe resultados de jogos de futebol. **Requer o parâmetro `league`** para espe
 **Com parâmetros:**
 ```
 [espn_soccer_scoreboard league="eng.1" limit="15"]
-[espn_soccer_scoreboard league="uefa.champions" limit="10" title="Champions League - Resultados"]
+[espn_soccer_scoreboard league="uefa.champions" days_back="3" limit="10"]
 [espn_soccer_scoreboard league="esp.1" date="20231225"]
 ```
 
 **Parâmetros disponíveis:**
 - `league` - **OBRIGATÓRIO** - Código da liga (veja lista abaixo)
 - `limit` - Número máximo de jogos (padrão: 10)
-- `date` - Data específica no formato YYYYMMDD (opcional)
+- `days_back` - Quantos dias no passado buscar (padrão: 7)
+- `date` - Data específica no formato YYYYMMDD ou range YYYYMMDD-YYYYMMDD (opcional, sobrescreve days_back)
 - `title` - Título da seção (padrão: automático baseado na liga)
+
+**Nota:** Por padrão, busca jogos dos últimos 7 dias até hoje. Para jogos de apenas hoje, use `days_back="0"`.
 
 **Ligas disponíveis:**
 
@@ -274,7 +277,7 @@ Exibe classificação de uma liga de futebol.
 
 ### `[espn_soccer_upcoming]`
 
-Lista os próximos jogos agendados de uma liga de futebol.
+Lista os próximos jogos agendados de uma liga de futebol (jogos futuros).
 
 **Uso básico:**
 ```
@@ -284,13 +287,17 @@ Lista os próximos jogos agendados de uma liga de futebol.
 **Com mais jogos:**
 ```
 [espn_soccer_upcoming league="eng.1" limit="20"]
-[espn_soccer_upcoming league="conmebol.libertadores" limit="8"]
+[espn_soccer_upcoming league="conmebol.libertadores" limit="8" days="30"]
+[espn_soccer_upcoming league="bra.1" days="7"]
 ```
 
 **Parâmetros disponíveis:**
 - `league` - **OBRIGATÓRIO** - Código da liga (mesma lista acima)
 - `limit` - Número máximo de jogos (padrão: 10)
+- `days` - Quantos dias no futuro buscar (padrão: 14)
 - `title` - Título da seção (padrão: automático baseado na liga)
+
+**Nota:** Por padrão, busca jogos dos próximos 14 dias. Use `days="7"` para apenas a próxima semana ou `days="30"` para o próximo mês.
 
 ---
 
