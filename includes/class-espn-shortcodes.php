@@ -104,10 +104,11 @@ class WP_ESPN_Shortcodes {
             'sport' => 'nfl',
             'season' => date('Y'),
             'title' => 'Classificação',
-            'group_by' => 'conference' // 'conference' ou 'division'
+            'group_by' => 'conference', // 'conference' ou 'division'
+            'league' => null // Liga específica para soccer
         ), $atts);
 
-        $data = WP_ESPN_API::get_standings($atts['sport'], $atts['season']);
+        $data = WP_ESPN_API::get_standings($atts['sport'], $atts['season'], $atts['league']);
 
         if (is_wp_error($data)) {
             return '<div class="espn-error">Erro ao carregar dados: ' . $data->get_error_message() . '</div>';
@@ -198,10 +199,18 @@ class WP_ESPN_Shortcodes {
         $atts = shortcode_atts(array(
             'sport' => 'nfl',
             'limit' => 5,
-            'title' => 'Próximos Jogos'
+            'title' => 'Próximos Jogos',
+            'league' => null // Liga específica para soccer
         ), $atts);
 
-        $data = WP_ESPN_API::get_scoreboard($atts['sport'], null, $atts['limit']);
+        $data = WP_ESPN_API::get_scoreboard(
+            $atts['sport'],
+            null,           // date
+            $atts['limit'],
+            null,           // week
+            null,           // seasontype
+            $atts['league'] // league
+        );
 
         if (is_wp_error($data)) {
             return '<div class="espn-error">Erro ao carregar dados: ' . $data->get_error_message() . '</div>';

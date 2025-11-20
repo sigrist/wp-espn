@@ -199,17 +199,23 @@ class WP_ESPN_API {
      *
      * @param string $sport Código do esporte
      * @param int $season Temporada (ano)
+     * @param string $league Liga específica (apenas para soccer: eng.1, esp.1, bra.1, etc) (opcional)
      * @return array|WP_Error
      */
-    public static function get_standings($sport, $season = null) {
+    public static function get_standings($sport, $season = null, $league = null) {
         if (!isset(self::$sports_map[$sport])) {
             return new WP_Error('invalid_sport', 'Esporte inválido');
         }
 
         $sport_path = self::$sports_map[$sport];
 
-        // Usa a URL correta da API v2 para standings
-        $endpoint = self::BASE_URL_V2 . '/' . $sport_path . '/standings';
+        // Se for soccer e uma liga foi especificada, usa o endpoint da liga
+        if ($sport === 'soccer' && $league && isset(self::$soccer_leagues[$league])) {
+            $endpoint = self::BASE_URL_V2 . '/soccer/' . self::$soccer_leagues[$league] . '/standings';
+        } else {
+            // Usa a URL correta da API v2 para standings
+            $endpoint = self::BASE_URL_V2 . '/' . $sport_path . '/standings';
+        }
 
         $args = array();
         // Usa pt_BR para português brasileiro
