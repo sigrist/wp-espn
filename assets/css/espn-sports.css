@@ -224,6 +224,16 @@
 .espn-standings-table td {
     padding: 12px 15px;
     text-align: left;
+    vertical-align: middle;
+}
+
+.espn-standings-table td {
+    text-align: center;
+}
+
+.espn-standings-table td:first-child,
+.espn-standings-table td:nth-child(2) {
+    text-align: left;
 }
 
 .espn-standings-table th {
@@ -247,9 +257,15 @@
 }
 
 .espn-standings-team {
-    display: flex;
+    display: inline-flex;
     align-items: center;
+    gap: 8px;
     font-weight: 600;
+    white-space: nowrap;
+}
+
+.espn-standings-team img {
+    flex-shrink: 0;
 }
 
 /* Próximos Jogos */
