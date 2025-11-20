@@ -43,6 +43,21 @@ Nomes de times e jogadores permanecem em inglês (padrão no Brasil).
 [espn_upcoming sport="nba" limit="5" title="Próximos Jogos NBA"]
 ```
 
+### 5. Semana Específica da NFL
+
+```
+[espn_scoreboard sport="nfl" week="1" seasontype="2" title="NFL - Semana 1"]
+```
+
+### 6. Playoffs NFL
+
+```
+[espn_scoreboard sport="nfl" week="1" seasontype="3" title="Wild Card"]
+[espn_scoreboard sport="nfl" week="2" seasontype="3" title="Divisional Round"]
+[espn_scoreboard sport="nfl" week="3" seasontype="3" title="Conference Championships"]
+[espn_scoreboard sport="nfl" week="4" seasontype="3" title="Super Bowl"]
+```
+
 ## Exemplos Avançados
 
 ### Página de Esportes Completa
@@ -306,6 +321,40 @@ Se aparecer mensagem de erro:
 - Limpe o cache do WordPress
 - Verifique se a API da ESPN não está fora do ar
 
+## Estrutura de Páginas para Temporada Completa
+
+Se você quer criar páginas para todas as semanas da NFL (temporada regular + playoffs), consulte o arquivo **WORDPRESS-STRUCTURE.md** com várias opções:
+
+1. **Página Dinâmica com Navegação** (Recomendado)
+2. **Páginas Individuais**
+3. **Template Personalizado**
+4. **Plugin de Navegação Automática**
+
+### Exemplo Rápido - Página Dinâmica
+
+Crie uma página e adicione este código:
+
+```php
+<?php
+$week = isset($_GET['week']) ? intval($_GET['week']) : 1;
+$seasontype = isset($_GET['seasontype']) ? intval($_GET['seasontype']) : 2;
+?>
+
+<h1>NFL - Temporada Regular</h1>
+
+<!-- Navegação -->
+<div class="week-nav">
+    <?php for ($w = 1; $w <= 18; $w++): ?>
+        <a href="?week=<?php echo $w; ?>&seasontype=2">Semana <?php echo $w; ?></a>
+    <?php endfor; ?>
+</div>
+
+<!-- Resultados -->
+<?php echo do_shortcode('[espn_scoreboard sport="nfl" week="' . $week . '" seasontype="' . $seasontype . '"]'); ?>
+```
+
 ## Recursos Adicionais
 
-Para mais informações sobre os códigos de times e parâmetros disponíveis, consulte o arquivo README.md principal.
+- **README.md** - Documentação completa do plugin
+- **WORDPRESS-STRUCTURE.md** - Guia de estruturas WordPress para temporada completa
+- Para mais informações sobre os códigos de times e parâmetros disponíveis, consulte o arquivo README.md principal.

@@ -40,6 +40,8 @@ Exibe os resultados dos jogos recentes ou em andamento.
 - `sport`: Código do esporte (nfl, nba, mlb, nhl, soccer, college-football, college-basketball)
 - `limit`: Número de jogos a exibir (padrão: 10)
 - `date`: Data específica no formato YYYYMMDD (opcional)
+- `week`: Semana específica (1-18 para NFL temporada regular) (opcional)
+- `seasontype`: Tipo de temporada - 1=Pré-temporada, 2=Temporada Regular, 3=Playoffs (opcional)
 - `title`: Título da seção (padrão: "Resultados")
 
 **Exemplos:**
@@ -48,7 +50,21 @@ Exibe os resultados dos jogos recentes ou em andamento.
 [espn_scoreboard sport="nba" limit="3"]
 [espn_scoreboard sport="soccer" date="20231225"]
 [espn_scoreboard sport="nfl" limit="8" title="Jogos de Hoje"]
+[espn_scoreboard sport="nfl" week="1" seasontype="2" title="NFL - Semana 1"]
+[espn_scoreboard sport="nfl" week="4" seasontype="3" title="Super Bowl"]
 ```
+
+**Season Types:**
+- `1` - Pré-temporada
+- `2` - Temporada Regular (padrão)
+- `3` - Playoffs
+- `4` - Pro Bowl / All-Star
+
+**Weeks para Playoffs NFL:**
+- `1` - Wild Card
+- `2` - Divisional Round
+- `3` - Conference Championships
+- `4` - Super Bowl
 
 ### 2. Standings (Tabela de Classificação)
 

@@ -85,9 +85,11 @@ class WP_ESPN_API {
      * @param string $sport Código do esporte (nfl, nba, etc)
      * @param string $date Data no formato YYYYMMDD (opcional)
      * @param int $limit Limite de jogos
+     * @param int $week Semana específica (opcional, NFL)
+     * @param int $seasontype Tipo de temporada: 1=Pré-temporada, 2=Regular, 3=Playoffs, 4=All-Star (opcional)
      * @return array|WP_Error
      */
-    public static function get_scoreboard($sport, $date = null, $limit = 10) {
+    public static function get_scoreboard($sport, $date = null, $limit = 10, $week = null, $seasontype = null) {
         if (!isset(self::$sports_map[$sport])) {
             return new WP_Error('invalid_sport', 'Esporte inválido');
         }
@@ -98,6 +100,12 @@ class WP_ESPN_API {
         $args = array('limit' => $limit);
         if ($date) {
             $args['dates'] = $date;
+        }
+        if ($week !== null) {
+            $args['week'] = $week;
+        }
+        if ($seasontype !== null) {
+            $args['seasontype'] = $seasontype;
         }
 
         return self::make_request($endpoint, $args);

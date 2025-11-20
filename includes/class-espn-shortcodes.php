@@ -22,7 +22,7 @@ class WP_ESPN_Shortcodes {
     /**
      * Shortcode para exibir resultados de jogos
      *
-     * Uso: [espn_scoreboard sport="nfl" limit="5" date="20231201"]
+     * Uso: [espn_scoreboard sport="nfl" limit="5" week="1" seasontype="2"]
      *
      * @param array $atts Atributos do shortcode
      * @return string HTML do scoreboard
@@ -32,10 +32,18 @@ class WP_ESPN_Shortcodes {
             'sport' => 'nfl',
             'limit' => 10,
             'date' => null,
+            'week' => null,
+            'seasontype' => null,
             'title' => 'Resultados'
         ), $atts);
 
-        $data = WP_ESPN_API::get_scoreboard($atts['sport'], $atts['date'], $atts['limit']);
+        $data = WP_ESPN_API::get_scoreboard(
+            $atts['sport'],
+            $atts['date'],
+            $atts['limit'],
+            $atts['week'],
+            $atts['seasontype']
+        );
 
         if (is_wp_error($data)) {
             return '<div class="espn-error">Erro ao carregar dados: ' . $data->get_error_message() . '</div>';
