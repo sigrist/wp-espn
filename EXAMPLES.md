@@ -4,8 +4,12 @@ Este arquivo contém exemplos práticos de como usar o plugin ESPN Sports Scores
 
 ## Tradução Automática pt_BR
 
-O plugin traduz automaticamente termos da API da ESPN para português brasileiro:
+O plugin obtém dados em português de duas formas:
 
+1. **Direto da API**: Usa o parâmetro `lang=pt` nas requisições, obtendo muitos dados já traduzidos
+2. **Tradução Local**: Sistema de tradução adicional para campos não traduzidos pela API
+
+Resultado final:
 - ✅ Status: "Final" → "Final", "Live" → "Ao Vivo"
 - ✅ Períodos: "1st Quarter" → "1º Quarto", "Halftime" → "Intervalo"
 - ✅ Conferências: "AFC East" → "AFC Leste"
@@ -262,6 +266,20 @@ add_filter('wp_espn_format_date', function($formatted, $original_date, $format) 
     $timestamp = strtotime($original_date);
     return date_i18n('D, d/m \à\s H:i', $timestamp);
 }, 10, 3);
+```
+
+### Exemplo: Mudar idioma da API
+
+```php
+// Usar inglês ao invés de português
+add_filter('wp_espn_api_lang', function() {
+    return 'en';
+});
+
+// Usar espanhol
+add_filter('wp_espn_api_lang', function() {
+    return 'es';
+});
 ```
 
 ## Dicas de Uso

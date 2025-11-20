@@ -136,7 +136,10 @@ Exibe o calendário completo de um time específico.
 
 ## Internacionalização (i18n)
 
-O plugin possui **suporte completo para português brasileiro (pt_BR)**. Embora a API da ESPN retorne dados em inglês, o plugin traduz automaticamente:
+O plugin possui **suporte completo para português brasileiro (pt_BR)** através de duas abordagens:
+
+1. **Parâmetro `lang=pt` na API**: O plugin utiliza o parâmetro `lang=pt` nas requisições, fazendo com que a API da ESPN retorne muitos dados já em português
+2. **Sistema de tradução local**: Para campos que não são traduzidos pela API, o plugin aplica traduções adicionais
 
 ### O que é traduzido
 
@@ -190,6 +193,22 @@ WP_ESPN_i18n::add_translation('game_status', 'weather_delay', 'Adiado por Clima'
 
 // Adicionar nova tradução de período
 WP_ESPN_i18n::add_translation('periods', 'Shootout', 'Disputa de Pênaltis');
+```
+
+### Alterar Idioma da API
+
+Por padrão, o plugin usa `lang=pt` nas requisições à API. Para usar outro idioma:
+
+```php
+// Usar inglês
+add_filter('wp_espn_api_lang', function() {
+    return 'en';
+});
+
+// Usar espanhol
+add_filter('wp_espn_api_lang', function() {
+    return 'es';
+});
 ```
 
 ## Cache

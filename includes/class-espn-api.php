@@ -41,6 +41,9 @@ class WP_ESPN_API {
      * @return array|WP_Error
      */
     private static function make_request($endpoint, $args = array()) {
+        // Adiciona parâmetro de idioma para obter dados em português
+        $args['lang'] = apply_filters('wp_espn_api_lang', 'pt');
+
         $cache_key = 'wp_espn_' . md5($endpoint . serialize($args));
         $cached_data = get_transient($cache_key);
 
