@@ -146,11 +146,105 @@ class WP_ESPN_API {
                 return $scoreboard['standings'];
             }
 
+            // Alternativa 2: Buscar do endpoint de teams e montar standings
+            $teams_data = self::get_teams($sport);
+
+            if (!is_wp_error($teams_data) && isset($teams_data['sports'])) {
+                // Tenta extrair standings da estrutura de teams
+                return self::extract_standings_from_teams($teams_data, $sport);
+            }
+
             // Se ainda não funcionar, retorna os dados originais para debug
             return $data;
         }
 
         return $data;
+    }
+
+    /**
+     * Extrai dados de standings a partir da resposta de teams
+     *
+     * @param array $teams_data Dados dos times
+     * @param string $sport Código do esporte
+     * @return array
+     */
+    private static function extract_standings_from_teams($teams_data, $sport) {
+        $standings = array();
+
+        if (isset($teams_data['sports'][0]['leagues'][0]['teams'])) {
+            $teams = $teams_data['sports'][0]['leagues'][0]['teams'];
+
+            // Agrupa times por conferência/divisão
+            $grouped = array();
+
+            foreach ($teams as $team_wrapper) {
+                $team = $team_wrapper['team'] ?? array();
+
+                if (!isset($team['id'])) {
+                    continue;
+                }
+
+                // Extrai informações de conferência/divisão
+                $groups = isset($team['groups']) ? $team['groups'] : array();
+                $group_name = 'Geral';
+
+                if (!empty($groups)) {
+                    // Geralmente o grupo principal é o primeiro
+                    $group_name = $groups[0]['name'] ?? 'Geral';
+                }
+
+                if (!isset($grouped[$group_name])) {
+                    $grouped[$group_name] = array();
+                }
+
+                // Monta entrada de standing
+                $entry = array(
+                    'team' => $team,
+                    'stats' => array()
+                );
+
+                // Adiciona stats se disponíveis
+                if (isset($team['record'])) {
+                    $record = $team['record'];
+                    $stats_from_record = isset($record['items'][0]['stats']) ? $record['items'][0]['stats'] : array();
+
+                    // Tenta extrair wins, losses, winPercent
+                    foreach ($stats_from_record as $stat) {
+                        $stat_name = $stat['name'] ?? '';
+                        if (in_array($stat_name, array('wins', 'losses', 'winPercent', 'gamesBack', 'playoffSeed', 'rank'))) {
+                            $entry['stats'][] = $stat;
+                        }
+                    }
+
+                    // Se não encontrou rank, adiciona posição baseada na ordem
+                    $has_rank = false;
+                    foreach ($entry['stats'] as $stat) {
+                        if (isset($stat['name']) && ($stat['name'] === 'rank' || $stat['name'] === 'playoffSeed')) {
+                            $has_rank = true;
+                            break;
+                        }
+                    }
+
+                    if (!$has_rank) {
+                        $entry['stats'][] = array('name' => 'rank', 'value' => count($grouped[$group_name]) + 1);
+                    }
+                }
+
+                $grouped[$group_name][] = $entry;
+            }
+
+            // Converte para formato de standings
+            foreach ($grouped as $group_name => $entries) {
+                $standings[] = array(
+                    'name' => $group_name,
+                    'standings' => array(
+                        'entries' => $entries
+                    )
+                );
+            }
+        }
+
+        return $standings;
     }
 
     /**
