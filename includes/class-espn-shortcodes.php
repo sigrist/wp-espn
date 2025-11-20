@@ -26,16 +26,22 @@ class WP_ESPN_Shortcodes {
         add_shortcode('espn_nfl_navigator', array($this, 'nfl_navigator_shortcode'));
         add_shortcode('espn_nfl_upcoming', array($this, 'nfl_upcoming_shortcode'));
 
-        // Shortcodes específicos para NBA (futuro)
+        // Shortcodes específicos para NBA
         add_shortcode('espn_nba_scoreboard', array($this, 'nba_scoreboard_shortcode'));
         add_shortcode('espn_nba_standings', array($this, 'nba_standings_shortcode'));
         add_shortcode('espn_nba_upcoming', array($this, 'nba_upcoming_shortcode'));
+
+        // Shortcodes específicos para Soccer (Futebol)
+        add_shortcode('espn_soccer_scoreboard', array($this, 'soccer_scoreboard_shortcode'));
+        add_shortcode('espn_soccer_standings', array($this, 'soccer_standings_shortcode'));
+        add_shortcode('espn_soccer_upcoming', array($this, 'soccer_upcoming_shortcode'));
     }
 
     /**
      * Shortcode para exibir resultados de jogos
      *
      * Uso: [espn_scoreboard sport="nfl" limit="5" week="1" seasontype="2"]
+     * Uso soccer: [espn_scoreboard sport="soccer" league="bra.1" limit="10"]
      *
      * @param array $atts Atributos do shortcode
      * @return string HTML do scoreboard
@@ -47,6 +53,7 @@ class WP_ESPN_Shortcodes {
             'date' => null,
             'week' => null,
             'seasontype' => null,
+            'league' => null,
             'title' => 'Resultados'
         ), $atts);
 
@@ -55,7 +62,8 @@ class WP_ESPN_Shortcodes {
             $atts['date'],
             $atts['limit'],
             $atts['week'],
-            $atts['seasontype']
+            $atts['seasontype'],
+            $atts['league']
         );
 
         if (is_wp_error($data)) {
@@ -817,5 +825,127 @@ class WP_ESPN_Shortcodes {
         $atts['sport'] = 'nba';
 
         return $this->upcoming_games_shortcode($atts);
+    }
+
+    // ========================================
+    // Shortcodes Específicos para Soccer (Futebol)
+    // ========================================
+
+    /**
+     * Shortcode específico para scoreboard de futebol
+     *
+     * Uso: [espn_soccer_scoreboard league="bra.1" limit="10"]
+     *
+     * @param array $atts Atributos do shortcode
+     * @return string HTML do scoreboard
+     */
+    public function soccer_scoreboard_shortcode($atts) {
+        $atts = shortcode_atts(array(
+            'league' => 'bra.1', // Brasileirão por padrão
+            'limit' => 10,
+            'date' => null,
+            'title' => null // Será definido baseado na liga
+        ), $atts);
+
+        // Define título baseado na liga se não foi especificado
+        if (!$atts['title']) {
+            $atts['title'] = $this->get_soccer_league_name($atts['league']) . ' - Resultados';
+        }
+
+        // Força o esporte para soccer
+        $atts['sport'] = 'soccer';
+
+        return $this->scoreboard_shortcode($atts);
+    }
+
+    /**
+     * Shortcode específico para standings de futebol
+     *
+     * Uso: [espn_soccer_standings league="bra.1"]
+     *
+     * @param array $atts Atributos do shortcode
+     * @return string HTML da tabela
+     */
+    public function soccer_standings_shortcode($atts) {
+        $atts = shortcode_atts(array(
+            'league' => 'bra.1', // Brasileirão por padrão
+            'season' => date('Y'),
+            'title' => null // Será definido baseado na liga
+        ), $atts);
+
+        // Define título baseado na liga se não foi especificado
+        if (!$atts['title']) {
+            $atts['title'] = $this->get_soccer_league_name($atts['league']) . ' - Classificação';
+        }
+
+        // Força o esporte para soccer
+        $atts['sport'] = 'soccer';
+
+        // Para soccer, standings geralmente não tem group_by (é por liga)
+        return $this->standings_shortcode($atts);
+    }
+
+    /**
+     * Shortcode específico para próximos jogos de futebol
+     *
+     * Uso: [espn_soccer_upcoming league="bra.1" limit="10"]
+     *
+     * @param array $atts Atributos do shortcode
+     * @return string HTML dos próximos jogos
+     */
+    public function soccer_upcoming_shortcode($atts) {
+        $atts = shortcode_atts(array(
+            'league' => 'bra.1', // Brasileirão por padrão
+            'limit' => 10,
+            'title' => null // Será definido baseado na liga
+        ), $atts);
+
+        // Define título baseado na liga se não foi especificado
+        if (!$atts['title']) {
+            $atts['title'] = $this->get_soccer_league_name($atts['league']) . ' - Próximos Jogos';
+        }
+
+        // Força o esporte para soccer
+        $atts['sport'] = 'soccer';
+
+        return $this->upcoming_games_shortcode($atts);
+    }
+
+    /**
+     * Retorna o nome amigável de uma liga de futebol
+     *
+     * @param string $league_code Código da liga (ex: bra.1, eng.1)
+     * @return string Nome da liga
+     */
+    private function get_soccer_league_name($league_code) {
+        $league_names = array(
+            // Ligas Europeias
+            'eng.1' => 'Premier League',
+            'esp.1' => 'La Liga',
+            'ita.1' => 'Serie A',
+            'ger.1' => 'Bundesliga',
+            'fra.1' => 'Ligue 1',
+            'ned.1' => 'Eredivisie',
+            'por.1' => 'Primeira Liga',
+
+            // Competições Internacionais
+            'uefa.champions' => 'Champions League',
+            'uefa.europa' => 'Europa League',
+            'uefa.europa.conf' => 'Conference League',
+            'fifa.world' => 'Copa do Mundo',
+
+            // América do Sul
+            'bra.1' => 'Brasileirão',
+            'arg.1' => 'Liga Argentina',
+            'conmebol.libertadores' => 'Libertadores',
+            'conmebol.sudamericana' => 'Sul-Americana',
+
+            // América do Norte
+            'usa.1' => 'MLS',
+            'mex.1' => 'Liga MX',
+            'concacaf.champions' => 'Champions CONCACAF',
+        );
+
+        return isset($league_names[$league_code]) ? $league_names[$league_code] : 'Futebol';
     }
 }

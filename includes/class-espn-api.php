@@ -35,6 +35,38 @@ class WP_ESPN_API {
     );
 
     /**
+     * Mapeia ligas de futebol para suas URLs
+     * Usado quando sport='soccer' e uma liga específica é fornecida
+     */
+    private static $soccer_leagues = array(
+        // Ligas Europeias
+        'eng.1' => 'eng.1',           // Premier League (Inglaterra)
+        'esp.1' => 'esp.1',           // La Liga (Espanha)
+        'ita.1' => 'ita.1',           // Serie A (Itália)
+        'ger.1' => 'ger.1',           // Bundesliga (Alemanha)
+        'fra.1' => 'fra.1',           // Ligue 1 (França)
+        'ned.1' => 'ned.1',           // Eredivisie (Holanda)
+        'por.1' => 'por.1',           // Primeira Liga (Portugal)
+
+        // Competições Internacionais
+        'uefa.champions' => 'uefa.champions',  // Champions League
+        'uefa.europa' => 'uefa.europa',        // Europa League
+        'uefa.europa.conf' => 'uefa.europa.conf', // Conference League
+        'fifa.world' => 'fifa.world',          // Copa do Mundo
+
+        // América do Sul
+        'bra.1' => 'bra.1',           // Brasileirão
+        'arg.1' => 'arg.1',           // Liga Argentina
+        'conmebol.libertadores' => 'conmebol.libertadores', // Libertadores
+        'conmebol.sudamericana' => 'conmebol.sudamericana', // Sul-Americana
+
+        // América do Norte
+        'usa.1' => 'usa.1',           // MLS
+        'mex.1' => 'mex.1',           // Liga MX
+        'concacaf.champions' => 'concacaf.champions', // Champions CONCACAF
+    );
+
+    /**
      * Faz uma requisição para a API da ESPN
      *
      * @param string $endpoint Endpoint da API
@@ -131,15 +163,22 @@ class WP_ESPN_API {
      * @param int $limit Limite de jogos
      * @param int $week Semana específica (opcional, NFL)
      * @param int $seasontype Tipo de temporada: 1=Pré-temporada, 2=Regular, 3=Playoffs, 4=All-Star (opcional)
+     * @param string $league Liga específica (apenas para soccer: eng.1, esp.1, bra.1, etc) (opcional)
      * @return array|WP_Error
      */
-    public static function get_scoreboard($sport, $date = null, $limit = 10, $week = null, $seasontype = null) {
+    public static function get_scoreboard($sport, $date = null, $limit = 10, $week = null, $seasontype = null, $league = null) {
         if (!isset(self::$sports_map[$sport])) {
             return new WP_Error('invalid_sport', 'Esporte inválido');
         }
 
         $sport_path = self::$sports_map[$sport];
-        $endpoint = self::BASE_URL . '/' . $sport_path . '/scoreboard';
+
+        // Se for soccer e uma liga foi especificada, usa o endpoint da liga
+        if ($sport === 'soccer' && $league && isset(self::$soccer_leagues[$league])) {
+            $endpoint = self::BASE_URL . '/soccer/' . self::$soccer_leagues[$league] . '/scoreboard';
+        } else {
+            $endpoint = self::BASE_URL . '/' . $sport_path . '/scoreboard';
+        }
 
         $args = array('limit' => $limit);
         if ($date) {

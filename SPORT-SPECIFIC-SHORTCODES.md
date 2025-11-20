@@ -195,6 +195,105 @@ Lista os próximos jogos agendados da NBA.
 
 ---
 
+## Soccer (Futebol)
+
+### `[espn_soccer_scoreboard]`
+
+Exibe resultados de jogos de futebol. **Requer o parâmetro `league`** para especificar qual campeonato.
+
+**Uso básico:**
+```
+[espn_soccer_scoreboard league="bra.1"]
+```
+
+**Com parâmetros:**
+```
+[espn_soccer_scoreboard league="eng.1" limit="15"]
+[espn_soccer_scoreboard league="uefa.champions" limit="10" title="Champions League - Resultados"]
+[espn_soccer_scoreboard league="esp.1" date="20231225"]
+```
+
+**Parâmetros disponíveis:**
+- `league` - **OBRIGATÓRIO** - Código da liga (veja lista abaixo)
+- `limit` - Número máximo de jogos (padrão: 10)
+- `date` - Data específica no formato YYYYMMDD (opcional)
+- `title` - Título da seção (padrão: automático baseado na liga)
+
+**Ligas disponíveis:**
+
+**Europa:**
+- `eng.1` - Premier League (Inglaterra)
+- `esp.1` - La Liga (Espanha)
+- `ita.1` - Serie A (Itália)
+- `ger.1` - Bundesliga (Alemanha)
+- `fra.1` - Ligue 1 (França)
+- `ned.1` - Eredivisie (Holanda)
+- `por.1` - Primeira Liga (Portugal)
+
+**Competições Internacionais:**
+- `uefa.champions` - Champions League
+- `uefa.europa` - Europa League
+- `uefa.europa.conf` - Conference League
+- `fifa.world` - Copa do Mundo
+
+**América do Sul:**
+- `bra.1` - Brasileirão (Série A)
+- `arg.1` - Liga Argentina
+- `conmebol.libertadores` - Libertadores
+- `conmebol.sudamericana` - Sul-Americana
+
+**América do Norte:**
+- `usa.1` - MLS
+- `mex.1` - Liga MX
+- `concacaf.champions` - Champions CONCACAF
+
+---
+
+### `[espn_soccer_standings]`
+
+Exibe classificação de uma liga de futebol.
+
+**Uso básico:**
+```
+[espn_soccer_standings league="bra.1"]
+```
+
+**Exemplos:**
+```
+[espn_soccer_standings league="eng.1"]
+[espn_soccer_standings league="uefa.champions" title="Fase de Grupos - Champions"]
+[espn_soccer_standings league="esp.1" season="2023"]
+```
+
+**Parâmetros disponíveis:**
+- `league` - **OBRIGATÓRIO** - Código da liga (mesma lista acima)
+- `season` - Ano da temporada (padrão: ano atual)
+- `title` - Título da seção (padrão: automático baseado na liga)
+
+---
+
+### `[espn_soccer_upcoming]`
+
+Lista os próximos jogos agendados de uma liga de futebol.
+
+**Uso básico:**
+```
+[espn_soccer_upcoming league="bra.1"]
+```
+
+**Com mais jogos:**
+```
+[espn_soccer_upcoming league="eng.1" limit="20"]
+[espn_soccer_upcoming league="conmebol.libertadores" limit="8"]
+```
+
+**Parâmetros disponíveis:**
+- `league` - **OBRIGATÓRIO** - Código da liga (mesma lista acima)
+- `limit` - Número máximo de jogos (padrão: 10)
+- `title` - Título da seção (padrão: automático baseado na liga)
+
+---
+
 ## Exemplos Práticos
 
 ### Página dedicada à NFL
@@ -227,6 +326,36 @@ Lista os próximos jogos agendados da NBA.
 [espn_nba_upcoming limit="10"]
 ```
 
+### Página dedicada ao Brasileirão
+
+```
+<h1>Brasileirão - Série A 2024</h1>
+
+<h2>Resultados da Rodada</h2>
+[espn_soccer_scoreboard league="bra.1"]
+
+<h2>Classificação</h2>
+[espn_soccer_standings league="bra.1"]
+
+<h2>Próximos Jogos</h2>
+[espn_soccer_upcoming league="bra.1" limit="10"]
+```
+
+### Página dedicada à Champions League
+
+```
+<h1>UEFA Champions League</h1>
+
+<h2>Resultados</h2>
+[espn_soccer_scoreboard league="uefa.champions" limit="16"]
+
+<h2>Classificação dos Grupos</h2>
+[espn_soccer_standings league="uefa.champions"]
+
+<h2>Próximos Jogos</h2>
+[espn_soccer_upcoming league="uefa.champions" limit="16"]
+```
+
 ### Página com múltiplos esportes
 
 ```
@@ -239,18 +368,23 @@ Lista os próximos jogos agendados da NBA.
 <h2>NBA</h2>
 [espn_nba_scoreboard limit="5"]
 [espn_nba_standings]
+
+<h2>Brasileirão</h2>
+[espn_soccer_scoreboard league="bra.1" limit="5"]
+[espn_soccer_standings league="bra.1"]
 ```
 
 ---
 
 ## Diferenças de Defaults por Esporte
 
-| Shortcode | NFL Default | NBA Default |
-|-----------|-------------|-------------|
-| **Standings group_by** | `division` | `conference` |
-| **Scoreboard limit** | `10` | `10` |
-| **Upcoming limit** | `5` | `10` |
-| **Título** | "NFL - ..." | "NBA - ..." |
+| Shortcode | NFL Default | NBA Default | Soccer Default |
+|-----------|-------------|-------------|----------------|
+| **League** | N/A | N/A | `bra.1` (Brasileirão) |
+| **Standings group_by** | `division` | `conference` | N/A (por liga) |
+| **Scoreboard limit** | `10` | `10` | `10` |
+| **Upcoming limit** | `5` | `10` | `10` |
+| **Título** | "NFL - ..." | "NBA - ..." | "Brasileirão - ..." (automático) |
 
 ---
 

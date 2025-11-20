@@ -30,8 +30,9 @@ Plugin WordPress para exibir resultados de jogos, tabelas de classificação e p
 ## Shortcodes Disponíveis
 
 > 💡 **NOVO!** Agora temos **shortcodes específicos por esporte** que são mais simples de usar:
-> - `[espn_nfl_navigator]`, `[espn_nfl_standings]`, `[espn_nfl_scoreboard]`, `[espn_nfl_upcoming]`
-> - `[espn_nba_scoreboard]`, `[espn_nba_standings]`, `[espn_nba_upcoming]`
+> - **NFL:** `[espn_nfl_navigator]`, `[espn_nfl_standings]`, `[espn_nfl_scoreboard]`, `[espn_nfl_upcoming]`
+> - **NBA:** `[espn_nba_scoreboard]`, `[espn_nba_standings]`, `[espn_nba_upcoming]`
+> - **Soccer:** `[espn_soccer_scoreboard league="bra.1"]`, `[espn_soccer_standings league="eng.1"]`, `[espn_soccer_upcoming league="uefa.champions"]`
 >
 > Veja todos os detalhes em: **[SPORT-SPECIFIC-SHORTCODES.md](SPORT-SPECIFIC-SHORTCODES.md)**
 
