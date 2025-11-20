@@ -56,9 +56,10 @@ Exibe navegação completa com todas as semanas da temporada + playoffs em uma �
 ```
 
 **Funcionalidades:**
+- ✅ **Detecção automática da semana atual** - Inicia sempre na semana em andamento
 - ✅ Navegação automática entre 18 semanas + 4 rodadas de playoffs
 - ✅ Toggle entre Temporada Regular e Playoffs
-- ✅ Destaque visual da semana atual
+- ✅ Destaque visual da semana selecionada
 - ✅ URLs amigáveis com query strings (?week=1&seasontype=2)
 - ✅ Design responsivo para mobile
 - ✅ Tradução automática para pt_BR

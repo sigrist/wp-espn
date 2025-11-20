@@ -25,6 +25,7 @@ Clique em **Publicar**.
 
 ## Pronto! Você terá:
 
+✅ **Detecção automática da semana atual** - Sempre começa na semana em andamento
 ✅ **18 semanas da temporada regular** com navegação automática
 ✅ **4 rodadas de playoffs** (Wild Card, Divisional, Conference, Super Bowl)
 ✅ **Botões de navegação** entre semanas
@@ -34,6 +35,15 @@ Clique em **Publicar**.
 ✅ **Tradução automática** para português
 
 ## Como Funciona
+
+### Detecção Automática da Semana Atual
+
+Quando alguém acessa a página pela primeira vez, o plugin:
+1. Consulta a API da ESPN
+2. Detecta qual é a semana atual da temporada
+3. Exibe automaticamente essa semana
+
+**Exemplo:** Se estamos na Semana 5 da NFL, a página vai carregar direto na Semana 5!
 
 ### URLs Geradas Automaticamente
 

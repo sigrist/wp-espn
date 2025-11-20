@@ -392,9 +392,19 @@ class WP_ESPN_Shortcodes {
             'title' => ''
         ), $atts);
 
-        // Pega parâmetros da URL
-        $week = isset($_GET['week']) ? intval($_GET['week']) : 1;
-        $seasontype = isset($_GET['seasontype']) ? intval($_GET['seasontype']) : 2;
+        // Detecta semana e tipo de temporada atual se não houver parâmetros na URL
+        if (!isset($_GET['week']) || !isset($_GET['seasontype'])) {
+            $current_data = $this->detect_current_week($atts['sport']);
+            $default_week = $current_data['week'];
+            $default_seasontype = $current_data['seasontype'];
+        } else {
+            $default_week = 1;
+            $default_seasontype = 2;
+        }
+
+        // Pega parâmetros da URL ou usa os detectados
+        $week = isset($_GET['week']) ? intval($_GET['week']) : $default_week;
+        $seasontype = isset($_GET['seasontype']) ? intval($_GET['seasontype']) : $default_seasontype;
 
         // Define títulos baseados no tipo de temporada
         $season_names = array(
@@ -506,5 +516,51 @@ class WP_ESPN_Shortcodes {
         </div>
         <?php
         return ob_get_clean();
+    }
+
+    /**
+     * Detecta a semana atual do esporte
+     *
+     * @param string $sport Código do esporte
+     * @return array Array com 'week' e 'seasontype'
+     */
+    private function detect_current_week($sport) {
+        // Faz uma chamada à API sem especificar semana para pegar a atual
+        $data = WP_ESPN_API::get_scoreboard($sport, null, 1);
+
+        $default = array('week' => 1, 'seasontype' => 2);
+
+        if (is_wp_error($data) || empty($data)) {
+            return $default;
+        }
+
+        // Tenta pegar informações da semana da resposta da API
+        $week = 1;
+        $seasontype = 2;
+
+        // A API da ESPN geralmente retorna informações sobre a semana atual
+        if (isset($data['week'])) {
+            $week = intval($data['week']['number'] ?? 1);
+        } elseif (isset($data['season'])) {
+            $week = intval($data['season']['week'] ?? 1);
+        }
+
+        // Verifica o tipo de temporada
+        if (isset($data['season']['type'])) {
+            $seasontype = intval($data['season']['type']);
+        } elseif (isset($data['type'])) {
+            $seasontype = intval($data['type']);
+        }
+
+        // Se for playoffs e não houver eventos, volta para a última semana da temporada regular
+        if ($seasontype == 3 && empty($data['events'])) {
+            $week = 18; // Última semana da temporada regular NFL
+            $seasontype = 2;
+        }
+
+        return array(
+            'week' => max(1, $week),
+            'seasontype' => in_array($seasontype, array(1, 2, 3, 4)) ? $seasontype : 2
+        );
     }
 }

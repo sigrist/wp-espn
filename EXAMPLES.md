@@ -32,6 +32,7 @@ Nomes de times e jogadores permanecem em inglês (padrão no Brasil).
 ### Passo 3: Publique!
 
 **Pronto!** Você terá:
+- ✅ **Página inicia automaticamente na semana atual**
 - ✅ Navegação entre todas as 18 semanas
 - ✅ Navegação entre as 4 rodadas de playoffs
 - ✅ Toggle entre Temporada Regular e Playoffs
