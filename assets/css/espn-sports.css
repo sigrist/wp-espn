@@ -257,15 +257,24 @@
 }
 
 .espn-standings-team {
-    display: inline-flex;
+    display: flex !important;
     align-items: center;
     gap: 8px;
     font-weight: 600;
-    white-space: nowrap;
 }
 
 .espn-standings-team img {
     flex-shrink: 0;
+    display: block;
+}
+
+.espn-standings-table a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.espn-standings-table a:hover {
+    text-decoration: none;
 }
 
 /* Próximos Jogos */
