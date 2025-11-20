@@ -168,7 +168,9 @@
     width: 24px;
     height: 24px;
     object-fit: contain;
-    margin-right: 8px;
+    display: block;
+    margin: 0;
+    padding: 0;
 }
 
 .espn-team-name {
@@ -261,11 +263,15 @@
     align-items: center;
     gap: 8px;
     font-weight: 600;
+    line-height: 1;
 }
 
 .espn-standings-team img {
     flex-shrink: 0;
     display: block;
+    margin: 0;
+    padding: 0;
+    vertical-align: middle;
 }
 
 .espn-standings-table a {
