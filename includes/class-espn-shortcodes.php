@@ -83,7 +83,8 @@ class WP_ESPN_Shortcodes {
         $atts = shortcode_atts(array(
             'sport' => 'nfl',
             'season' => date('Y'),
-            'title' => 'Classificação'
+            'title' => 'Classificação',
+            'group_by' => 'conference' // 'conference' ou 'division'
         ), $atts);
 
         $data = WP_ESPN_API::get_standings($atts['sport'], $atts['season']);
@@ -130,6 +131,11 @@ class WP_ESPN_Shortcodes {
 
         if (empty($conferences)) {
             return $debug . '<div class="espn-no-data">Dados de classificação não disponíveis.</div>';
+        }
+
+        // Se group_by for 'division', expande para mostrar divisões
+        if ($atts['group_by'] === 'division') {
+            $conferences = $this->expand_to_divisions($conferences);
         }
 
         ob_start();
@@ -378,6 +384,30 @@ class WP_ESPN_Shortcodes {
             </tbody>
         </table>
         <?php
+    }
+
+    /**
+     * Expande a estrutura de conferências para mostrar divisões
+     *
+     * @param array $conferences Array de conferências
+     * @return array Array com divisões expandidas
+     */
+    private function expand_to_divisions($conferences) {
+        $divisions = array();
+
+        foreach ($conferences as $conference) {
+            // Se a conferência tem children (divisões), usa eles
+            if (isset($conference['children']) && !empty($conference['children'])) {
+                foreach ($conference['children'] as $division) {
+                    $divisions[] = $division;
+                }
+            } else {
+                // Se não tem divisões, mantém a conferência como está
+                $divisions[] = $conference;
+            }
+        }
+
+        return $divisions;
     }
 
     /**
