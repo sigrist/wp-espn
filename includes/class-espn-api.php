@@ -124,6 +124,8 @@ class WP_ESPN_API {
         }
 
         $sport_path = self::$sports_map[$sport];
+
+        // Tenta primeiro o endpoint direto de standings
         $endpoint = self::BASE_URL . '/' . $sport_path . '/standings';
 
         $args = array();
@@ -133,7 +135,22 @@ class WP_ESPN_API {
             $args['season'] = date('Y');
         }
 
-        return self::make_request($endpoint, $args);
+        $data = self::make_request($endpoint, $args);
+
+        // Se retornar apenas fullViewLink, tenta buscar do scoreboard que geralmente tem standings
+        if (isset($data['fullViewLink']) && !isset($data['children']) && !isset($data['standings'])) {
+            // Busca do scoreboard que pode conter informações de classificação
+            $scoreboard = self::get_scoreboard($sport, null, 1);
+
+            if (!is_wp_error($scoreboard) && isset($scoreboard['standings'])) {
+                return $scoreboard['standings'];
+            }
+
+            // Se ainda não funcionar, retorna os dados originais para debug
+            return $data;
+        }
+
+        return $data;
     }
 
     /**

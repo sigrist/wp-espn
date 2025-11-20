@@ -110,14 +110,22 @@ class WP_ESPN_Shortcodes {
         $conferences = array();
 
         if (isset($data['children']) && !empty($data['children'])) {
-            // Estrutura com children (conferências/divisões)
+            // Estrutura 1: com children (conferências/divisões)
             $conferences = $data['children'];
         } elseif (isset($data['standings']) && !empty($data['standings'])) {
-            // Estrutura direta com standings
-            $conferences = array(array(
-                'name' => $atts['sport'] === 'nfl' ? 'NFL' : strtoupper($atts['sport']),
-                'standings' => array('entries' => $data['standings'])
-            ));
+            // Estrutura 2: com standings direto (geralmente vem do scoreboard)
+            // Pode ser um array de grupos ou já ter a estrutura correta
+            if (is_array($data['standings']) && isset($data['standings'][0])) {
+                $conferences = $data['standings'];
+            } else {
+                $conferences = array(array(
+                    'name' => $atts['sport'] === 'nfl' ? 'NFL' : strtoupper($atts['sport']),
+                    'standings' => $data['standings']
+                ));
+            }
+        } elseif (is_array($data) && isset($data[0]) && isset($data[0]['entries'])) {
+            // Estrutura 3: array direto de standings com entries
+            $conferences = $data;
         }
 
         if (empty($conferences)) {
