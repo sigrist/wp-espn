@@ -92,7 +92,21 @@ class WP_ESPN_Shortcodes {
             return '<div class="espn-error">Erro ao carregar dados: ' . $data->get_error_message() . '</div>';
         }
 
-        if (empty($data['children'])) {
+        // A API pode retornar dados em diferentes estruturas
+        $conferences = array();
+
+        if (isset($data['children']) && !empty($data['children'])) {
+            // Estrutura com children (conferências/divisões)
+            $conferences = $data['children'];
+        } elseif (isset($data['standings']) && !empty($data['standings'])) {
+            // Estrutura direta com standings
+            $conferences = array(array(
+                'name' => $atts['sport'] === 'nfl' ? 'NFL' : strtoupper($atts['sport']),
+                'standings' => array('entries' => $data['standings'])
+            ));
+        }
+
+        if (empty($conferences)) {
             return '<div class="espn-no-data">Dados de classificação não disponíveis.</div>';
         }
 
@@ -103,10 +117,15 @@ class WP_ESPN_Shortcodes {
                 <h3 class="espn-title"><?php echo esc_html($atts['title']); ?></h3>
             <?php endif; ?>
 
-            <?php foreach ($data['children'] as $conference): ?>
+            <?php foreach ($conferences as $conference): ?>
                 <div class="espn-conference">
-                    <?php $conference_name = WP_ESPN_i18n::translate_conference($conference['name'], $atts['sport']); ?>
-                    <h4 class="espn-conference-name"><?php echo esc_html($conference_name); ?></h4>
+                    <?php
+                    $conference_name = isset($conference['name']) ? $conference['name'] : '';
+                    $conference_name = WP_ESPN_i18n::translate_conference($conference_name, $atts['sport']);
+                    ?>
+                    <?php if ($conference_name): ?>
+                        <h4 class="espn-conference-name"><?php echo esc_html($conference_name); ?></h4>
+                    <?php endif; ?>
 
                     <?php if (isset($conference['standings'])): ?>
                         <?php $this->render_standings_table($conference['standings']); ?>
@@ -303,18 +322,34 @@ class WP_ESPN_Shortcodes {
             </thead>
             <tbody>
                 <?php foreach ($standings['entries'] as $entry): ?>
+                    <?php
+                    // Busca stats por nome ao invés de usar índices fixos
+                    $stats = isset($entry['stats']) ? $entry['stats'] : array();
+                    $stats_map = array();
+                    foreach ($stats as $stat) {
+                        if (isset($stat['name'])) {
+                            $stats_map[$stat['name']] = $stat;
+                        }
+                    }
+
+                    // Extrai valores comuns
+                    $rank = $stats_map['rank']['value'] ?? ($stats_map['playoffSeed']['value'] ?? '-');
+                    $wins = $stats_map['wins']['displayValue'] ?? ($stats_map['wins']['value'] ?? '-');
+                    $losses = $stats_map['losses']['displayValue'] ?? ($stats_map['losses']['value'] ?? '-');
+                    $winPercent = $stats_map['winPercent']['displayValue'] ?? ($stats_map['gamesBehind']['displayValue'] ?? '-');
+                    ?>
                     <tr>
-                        <td><?php echo esc_html($entry['stats'][0]['value'] ?? '-'); ?></td>
+                        <td><?php echo esc_html($rank); ?></td>
                         <td class="espn-standings-team">
                             <?php $logo = WP_ESPN_API::get_team_logo($entry['team']); ?>
                             <?php if ($logo): ?>
                                 <img src="<?php echo esc_url($logo); ?>" alt="" class="espn-team-logo-small">
                             <?php endif; ?>
-                            <?php echo esc_html($entry['team']['displayName']); ?>
+                            <?php echo esc_html($entry['team']['displayName'] ?? $entry['team']['name'] ?? 'Time'); ?>
                         </td>
-                        <td><?php echo esc_html($entry['stats'][7]['displayValue'] ?? '-'); ?></td>
-                        <td><?php echo esc_html($entry['stats'][1]['displayValue'] ?? '-'); ?></td>
-                        <td><?php echo esc_html($entry['stats'][3]['displayValue'] ?? '-'); ?></td>
+                        <td><?php echo esc_html($wins); ?></td>
+                        <td><?php echo esc_html($losses); ?></td>
+                        <td><?php echo esc_html($winPercent); ?></td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>
