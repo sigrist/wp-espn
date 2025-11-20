@@ -292,12 +292,13 @@ class WP_ESPN_Shortcodes {
         }
 
         $game_date = WP_ESPN_i18n::format_date($game['date']);
+        $game_date_iso = isset($game['date']) ? $game['date'] : '';
         $status_translated = WP_ESPN_i18n::translate_text($status);
         ?>
         <div class="espn-game-card <?php echo esc_attr('status-' . $state); ?>">
             <div class="espn-game-header">
                 <span class="espn-game-status"><?php echo esc_html($status_translated); ?></span>
-                <span class="espn-game-date"><?php echo esc_html($game_date); ?></span>
+                <span class="espn-game-date" data-timestamp="<?php echo esc_attr($game_date_iso); ?>"><?php echo esc_html($game_date); ?></span>
             </div>
 
             <div class="espn-game-teams">
@@ -419,6 +420,7 @@ class WP_ESPN_Shortcodes {
         $competitions = $game['competitions'][0] ?? array();
         $competitors = $competitions['competitors'] ?? array();
         $game_date = WP_ESPN_i18n::format_date($game['date']);
+        $game_date_iso = isset($game['date']) ? $game['date'] : '';
 
         $home_team = null;
         $away_team = null;
@@ -436,7 +438,7 @@ class WP_ESPN_Shortcodes {
         }
         ?>
         <div class="espn-upcoming-game">
-            <div class="espn-upcoming-date"><?php echo esc_html($game_date); ?></div>
+            <div class="espn-upcoming-date" data-timestamp="<?php echo esc_attr($game_date_iso); ?>"><?php echo esc_html($game_date); ?></div>
             <div class="espn-upcoming-matchup">
                 <span class="espn-upcoming-team"><?php echo esc_html($away_team['team']['displayName']); ?></span>
                 <span class="espn-upcoming-vs">@</span>
@@ -453,10 +455,11 @@ class WP_ESPN_Shortcodes {
      */
     private function render_schedule_item($event) {
         $game_date = WP_ESPN_i18n::format_date($event['date']);
+        $game_date_iso = isset($event['date']) ? $event['date'] : '';
         $name = $event['name'] ?? 'Jogo';
         ?>
         <div class="espn-schedule-item">
-            <div class="espn-schedule-date"><?php echo esc_html($game_date); ?></div>
+            <div class="espn-schedule-date" data-timestamp="<?php echo esc_attr($game_date_iso); ?>"><?php echo esc_html($game_date); ?></div>
             <div class="espn-schedule-name"><?php echo esc_html($name); ?></div>
         </div>
         <?php
