@@ -9,6 +9,7 @@ Plugin WordPress para exibir resultados de jogos, tabelas de classificação e p
 - **Próximos Jogos**: Lista os jogos agendados
 - **Calendário de Times**: Exibe o calendário completo de um time específico
 - **Tradução para pt_BR**: Termos comuns, status de jogos e datas automaticamente traduzidos
+- **Conversão Automática de Timezone**: Horários convertidos automaticamente para o fuso horário do navegador
 
 ## Esportes Suportados
 
@@ -270,6 +271,30 @@ add_filter('wp_espn_api_lang', function() {
     return 'es';
 });
 ```
+
+## Conversão Automática de Timezone
+
+O plugin converte automaticamente todos os horários para o fuso horário local do navegador do visitante.
+
+### Como Funciona
+
+- **Detecção Automática**: O JavaScript detecta o timezone do navegador usando `Intl.DateTimeFormat()`
+- **Conversão Transparente**: Todos os horários são convertidos automaticamente sem necessidade de configuração
+- **Formato pt-BR**: Datas e horários são formatados no padrão brasileiro (dd/mm/aaaa hh:mm)
+- **Tooltip Informativo**: Ao passar o mouse sobre um horário, exibe o timezone detectado
+
+### Exemplos
+
+**Jogo da NFL às 13:00 ET (horário dos EUA):**
+- Usuário em São Paulo: Vê "18:00" (BRT - Brasília Time)
+- Usuário em Lisboa: Vê "18:00" (WET - Western European Time)
+- Usuário em Tokyo: Vê "03:00 do dia seguinte" (JST - Japan Standard Time)
+
+**Benefícios:**
+- ✅ Elimina confusão com fusos horários
+- ✅ Cada visitante vê o horário local automaticamente
+- ✅ Funciona para qualquer localização do mundo
+- ✅ Não requer configuração manual
 
 ## Cache
 
