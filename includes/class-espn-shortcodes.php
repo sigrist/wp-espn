@@ -92,6 +92,20 @@ class WP_ESPN_Shortcodes {
             return '<div class="espn-error">Erro ao carregar dados: ' . $data->get_error_message() . '</div>';
         }
 
+        // DEBUG: Mostrar estrutura da API temporariamente (adicione ?debug_espn=1 na URL)
+        if (isset($_GET['debug_espn'])) {
+            ob_start();
+            echo '<pre style="background:#f0f0f0;padding:20px;overflow:auto;max-height:500px;border:2px solid #333;">';
+            echo "=== DEBUG STANDINGS API ===\n\n";
+            echo "Chaves principais: " . (is_array($data) ? implode(', ', array_keys($data)) : 'Não é array') . "\n\n";
+            echo "Estrutura completa:\n";
+            print_r($data);
+            echo '</pre>';
+            $debug = ob_get_clean();
+        } else {
+            $debug = '';
+        }
+
         // A API pode retornar dados em diferentes estruturas
         $conferences = array();
 
@@ -107,10 +121,11 @@ class WP_ESPN_Shortcodes {
         }
 
         if (empty($conferences)) {
-            return '<div class="espn-no-data">Dados de classificação não disponíveis.</div>';
+            return $debug . '<div class="espn-no-data">Dados de classificação não disponíveis.</div>';
         }
 
         ob_start();
+        echo $debug;
         ?>
         <div class="espn-standings">
             <?php if ($atts['title']): ?>
