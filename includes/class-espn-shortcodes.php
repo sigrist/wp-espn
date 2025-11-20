@@ -74,6 +74,20 @@ class WP_ESPN_Shortcodes {
             return '<div class="espn-no-games">Nenhum jogo disponível no momento.</div>';
         }
 
+        // Para futebol, filtra apenas jogos que já aconteceram ou estão em andamento
+        $games = $data['events'];
+        if ($atts['sport'] === 'soccer') {
+            $games = array_filter($games, function($game) {
+                $status = $game['status']['type']['state'] ?? '';
+                // Remove jogos futuros (pre)
+                return $status !== 'pre';
+            });
+        }
+
+        if (empty($games)) {
+            return '<div class="espn-no-games">Nenhum jogo disponível no momento.</div>';
+        }
+
         ob_start();
         ?>
         <div class="espn-scoreboard">
@@ -82,8 +96,8 @@ class WP_ESPN_Shortcodes {
             <?php endif; ?>
 
             <div class="espn-games-container">
-                <?php foreach ($data['events'] as $game): ?>
-                    <?php $this->render_game_card($game); ?>
+                <?php foreach ($games as $game): ?>
+                    <?php $this->render_game_card($game, $atts['sport']); ?>
                 <?php endforeach; ?>
             </div>
         </div>
@@ -311,7 +325,7 @@ class WP_ESPN_Shortcodes {
      *
      * @param array $game Dados do jogo
      */
-    private function render_game_card($game) {
+    private function render_game_card($game, $sport = null) {
         $status = $game['status']['type']['detail'] ?? '';
         $state = $game['status']['type']['state'] ?? '';
         $competitions = $game['competitions'][0] ?? array();
@@ -340,6 +354,15 @@ class WP_ESPN_Shortcodes {
         $venue = $competitions['venue'] ?? null;
         $venue_name = $venue['fullName'] ?? ($venue['name'] ?? null);
         $venue_city = $venue['address']['city'] ?? null;
+
+        // Para futebol: Casa x Visitante
+        // Para outros esportes: Visitante @ Casa
+        $is_soccer = ($sport === 'soccer');
+        $first_team = $is_soccer ? $home_team : $away_team;
+        $second_team = $is_soccer ? $away_team : $home_team;
+        $first_class = $is_soccer ? 'home-team' : 'away-team';
+        $second_class = $is_soccer ? 'away-team' : 'home-team';
+        $vs_text = $is_soccer ? 'x' : 'vs';
         ?>
         <div class="espn-game-card <?php echo esc_attr('status-' . $state); ?>">
             <div class="espn-game-header">
@@ -359,28 +382,28 @@ class WP_ESPN_Shortcodes {
             <?php endif; ?>
 
             <div class="espn-game-teams">
-                <div class="espn-team away-team">
+                <div class="espn-team <?php echo esc_attr($first_class); ?>">
                     <div class="espn-team-info">
-                        <?php $logo = WP_ESPN_API::get_team_logo($away_team['team']); ?>
+                        <?php $logo = WP_ESPN_API::get_team_logo($first_team['team']); ?>
                         <?php if ($logo): ?>
-                            <img src="<?php echo esc_url($logo); ?>" alt="<?php echo esc_attr($away_team['team']['displayName']); ?>" class="espn-team-logo">
+                            <img src="<?php echo esc_url($logo); ?>" alt="<?php echo esc_attr($first_team['team']['displayName']); ?>" class="espn-team-logo">
                         <?php endif; ?>
-                        <span class="espn-team-name"><?php echo esc_html($away_team['team']['displayName']); ?></span>
+                        <span class="espn-team-name"><?php echo esc_html($first_team['team']['displayName']); ?></span>
                     </div>
-                    <span class="espn-team-score"><?php echo esc_html($away_team['score'] ?? '-'); ?></span>
+                    <span class="espn-team-score"><?php echo esc_html($first_team['score'] ?? '-'); ?></span>
                 </div>
 
-                <div class="espn-vs">vs</div>
+                <div class="espn-vs"><?php echo esc_html($vs_text); ?></div>
 
-                <div class="espn-team home-team">
+                <div class="espn-team <?php echo esc_attr($second_class); ?>">
                     <div class="espn-team-info">
-                        <?php $logo = WP_ESPN_API::get_team_logo($home_team['team']); ?>
+                        <?php $logo = WP_ESPN_API::get_team_logo($second_team['team']); ?>
                         <?php if ($logo): ?>
-                            <img src="<?php echo esc_url($logo); ?>" alt="<?php echo esc_attr($home_team['team']['displayName']); ?>" class="espn-team-logo">
+                            <img src="<?php echo esc_url($logo); ?>" alt="<?php echo esc_attr($second_team['team']['displayName']); ?>" class="espn-team-logo">
                         <?php endif; ?>
-                        <span class="espn-team-name"><?php echo esc_html($home_team['team']['displayName']); ?></span>
+                        <span class="espn-team-name"><?php echo esc_html($second_team['team']['displayName']); ?></span>
                     </div>
-                    <span class="espn-team-score"><?php echo esc_html($home_team['score'] ?? '-'); ?></span>
+                    <span class="espn-team-score"><?php echo esc_html($second_team['score'] ?? '-'); ?></span>
                 </div>
             </div>
         </div>
@@ -735,7 +758,7 @@ class WP_ESPN_Shortcodes {
                 } else {
                     echo '<div class="espn-games-container">';
                     foreach ($data['events'] as $game) {
-                        $this->render_game_card($game);
+                        $this->render_game_card($game, $atts['sport']);
                     }
                     echo '</div>';
                 }
