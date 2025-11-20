@@ -13,6 +13,7 @@ class WP_ESPN_API {
      * Base URLs da API
      */
     const BASE_URL = 'https://site.api.espn.com/apis/site/v2/sports';
+    const BASE_URL_V2 = 'https://site.web.api.espn.com/apis/v2/sports';
     const CDN_URL = 'https://cdn.espn.com/core';
 
     /**
@@ -44,6 +45,49 @@ class WP_ESPN_API {
         // Adiciona parâmetro de idioma para obter dados em português
         $args['lang'] = apply_filters('wp_espn_api_lang', 'pt');
 
+        $cache_key = 'wp_espn_' . md5($endpoint . serialize($args));
+        $cached_data = get_transient($cache_key);
+
+        if ($cached_data !== false) {
+            return $cached_data;
+        }
+
+        $url = $endpoint;
+        if (!empty($args)) {
+            $url = add_query_arg($args, $url);
+        }
+
+        $response = wp_remote_get($url, array(
+            'timeout' => 15,
+            'headers' => array(
+                'Accept' => 'application/json'
+            )
+        ));
+
+        if (is_wp_error($response)) {
+            return $response;
+        }
+
+        $body = wp_remote_retrieve_body($response);
+        $data = json_decode($body, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            return new WP_Error('json_error', 'Erro ao processar resposta da API');
+        }
+
+        set_transient($cache_key, $data, self::CACHE_TIME);
+
+        return $data;
+    }
+
+    /**
+     * Faz uma requisição para a API v2 da ESPN (sem adicionar lang automaticamente)
+     *
+     * @param string $endpoint Endpoint da API
+     * @param array $args Argumentos adicionais (incluindo lang se necessário)
+     * @return array|WP_Error
+     */
+    private static function make_request_v2($endpoint, $args = array()) {
         $cache_key = 'wp_espn_' . md5($endpoint . serialize($args));
         $cached_data = get_transient($cache_key);
 
@@ -125,17 +169,20 @@ class WP_ESPN_API {
 
         $sport_path = self::$sports_map[$sport];
 
-        // Tenta primeiro o endpoint direto de standings
-        $endpoint = self::BASE_URL . '/' . $sport_path . '/standings';
+        // Usa a URL correta da API v2 para standings
+        $endpoint = self::BASE_URL_V2 . '/' . $sport_path . '/standings';
 
         $args = array();
+        // Usa pt_BR para português brasileiro
+        $args['lang'] = 'pt_BR';
+
         if ($season) {
             $args['season'] = $season;
         } else {
             $args['season'] = date('Y');
         }
 
-        $data = self::make_request($endpoint, $args);
+        $data = self::make_request_v2($endpoint, $args);
 
         // Se retornar apenas fullViewLink, tenta buscar do scoreboard que geralmente tem standings
         if (isset($data['fullViewLink']) && !isset($data['children']) && !isset($data['standings'])) {
