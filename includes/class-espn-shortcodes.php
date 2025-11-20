@@ -239,7 +239,7 @@ class WP_ESPN_Shortcodes {
 
             <div class="espn-games-list">
                 <?php foreach (array_slice($upcoming, 0, $atts['limit']) as $game): ?>
-                    <?php $this->render_upcoming_game($game); ?>
+                    <?php $this->render_upcoming_game($game, $atts['sport']); ?>
                 <?php endforeach; ?>
             </div>
         </div>
@@ -323,12 +323,28 @@ class WP_ESPN_Shortcodes {
         $game_date = WP_ESPN_i18n::format_date($game['date']);
         $game_date_iso = isset($game['date']) ? $game['date'] : '';
         $status_translated = WP_ESPN_i18n::translate_text($status);
+
+        // Informações do estádio/local
+        $venue = $competitions['venue'] ?? null;
+        $venue_name = $venue['fullName'] ?? ($venue['name'] ?? null);
+        $venue_city = $venue['address']['city'] ?? null;
         ?>
         <div class="espn-game-card <?php echo esc_attr('status-' . $state); ?>">
             <div class="espn-game-header">
                 <span class="espn-game-status"><?php echo esc_html($status_translated); ?></span>
                 <span class="espn-game-date" data-timestamp="<?php echo esc_attr($game_date_iso); ?>"><?php echo esc_html($game_date); ?></span>
             </div>
+
+            <?php if ($venue_name || $venue_city): ?>
+                <div class="espn-game-venue">
+                    <?php if ($venue_name): ?>
+                        <span class="espn-venue-name"><?php echo esc_html($venue_name); ?></span>
+                    <?php endif; ?>
+                    <?php if ($venue_city): ?>
+                        <span class="espn-venue-city"><?php echo esc_html($venue_city); ?></span>
+                    <?php endif; ?>
+                </div>
+            <?php endif; ?>
 
             <div class="espn-game-teams">
                 <div class="espn-team away-team">
@@ -444,8 +460,9 @@ class WP_ESPN_Shortcodes {
      * Renderiza um jogo futuro
      *
      * @param array $game Dados do jogo
+     * @param string $sport Código do esporte (opcional, para detectar se é soccer)
      */
-    private function render_upcoming_game($game) {
+    private function render_upcoming_game($game, $sport = null) {
         $competitions = $game['competitions'][0] ?? array();
         $competitors = $competitions['competitors'] ?? array();
         $game_date = WP_ESPN_i18n::format_date($game['date']);
@@ -465,13 +482,66 @@ class WP_ESPN_Shortcodes {
         if (!$home_team || !$away_team) {
             return;
         }
+
+        // Informações do estádio/local
+        $venue = $competitions['venue'] ?? null;
+        $venue_name = $venue['fullName'] ?? ($venue['name'] ?? null);
+        $venue_city = $venue['address']['city'] ?? null;
+
+        // Para futebol, usa formato "Casa x Visitante"
+        // Para outros esportes, usa "Visitante @ Casa"
+        $is_soccer = ($sport === 'soccer');
         ?>
         <div class="espn-upcoming-game">
             <div class="espn-upcoming-date" data-timestamp="<?php echo esc_attr($game_date_iso); ?>"><?php echo esc_html($game_date); ?></div>
+
+            <?php if ($venue_name || $venue_city): ?>
+                <div class="espn-upcoming-venue">
+                    <?php if ($venue_name): ?>
+                        <span class="espn-venue-name"><?php echo esc_html($venue_name); ?></span>
+                    <?php endif; ?>
+                    <?php if ($venue_city): ?>
+                        <span class="espn-venue-city"><?php echo esc_html($venue_city); ?></span>
+                    <?php endif; ?>
+                </div>
+            <?php endif; ?>
+
             <div class="espn-upcoming-matchup">
-                <span class="espn-upcoming-team"><?php echo esc_html($away_team['team']['displayName']); ?></span>
-                <span class="espn-upcoming-vs">@</span>
-                <span class="espn-upcoming-team"><?php echo esc_html($home_team['team']['displayName']); ?></span>
+                <?php if ($is_soccer): ?>
+                    <!-- Formato Futebol: Casa x Visitante -->
+                    <div class="espn-upcoming-team-with-logo">
+                        <?php $home_logo = WP_ESPN_API::get_team_logo($home_team['team']); ?>
+                        <?php if ($home_logo): ?>
+                            <img src="<?php echo esc_url($home_logo); ?>" alt="" class="espn-team-logo-small">
+                        <?php endif; ?>
+                        <span class="espn-upcoming-team"><?php echo esc_html($home_team['team']['displayName']); ?></span>
+                    </div>
+                    <span class="espn-upcoming-vs">x</span>
+                    <div class="espn-upcoming-team-with-logo">
+                        <?php $away_logo = WP_ESPN_API::get_team_logo($away_team['team']); ?>
+                        <?php if ($away_logo): ?>
+                            <img src="<?php echo esc_url($away_logo); ?>" alt="" class="espn-team-logo-small">
+                        <?php endif; ?>
+                        <span class="espn-upcoming-team"><?php echo esc_html($away_team['team']['displayName']); ?></span>
+                    </div>
+                <?php else: ?>
+                    <!-- Formato Esportes Americanos: Visitante @ Casa -->
+                    <div class="espn-upcoming-team-with-logo">
+                        <?php $away_logo = WP_ESPN_API::get_team_logo($away_team['team']); ?>
+                        <?php if ($away_logo): ?>
+                            <img src="<?php echo esc_url($away_logo); ?>" alt="" class="espn-team-logo-small">
+                        <?php endif; ?>
+                        <span class="espn-upcoming-team"><?php echo esc_html($away_team['team']['displayName']); ?></span>
+                    </div>
+                    <span class="espn-upcoming-vs">@</span>
+                    <div class="espn-upcoming-team-with-logo">
+                        <?php $home_logo = WP_ESPN_API::get_team_logo($home_team['team']); ?>
+                        <?php if ($home_logo): ?>
+                            <img src="<?php echo esc_url($home_logo); ?>" alt="" class="espn-team-logo-small">
+                        <?php endif; ?>
+                        <span class="espn-upcoming-team"><?php echo esc_html($home_team['team']['displayName']); ?></span>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
         <?php
@@ -965,7 +1035,7 @@ class WP_ESPN_Shortcodes {
 
             <div class="espn-games-list">
                 <?php foreach (array_slice($upcoming, 0, $atts['limit']) as $game): ?>
-                    <?php $this->render_upcoming_game($game); ?>
+                    <?php $this->render_upcoming_game($game, $atts['sport']); ?>
                 <?php endforeach; ?>
             </div>
         </div>

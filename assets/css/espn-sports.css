@@ -103,6 +103,34 @@
     color: #666;
 }
 
+/* Venue/Local do Jogo */
+.espn-game-venue {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    padding: 8px 10px;
+    background: #f9f9f9;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #555;
+}
+
+.espn-venue-name {
+    font-weight: 600;
+    color: #333;
+}
+
+.espn-venue-city {
+    color: #666;
+}
+
+.espn-venue-city:before {
+    content: "•";
+    margin: 0 6px;
+    color: #ccc;
+}
+
 /* Times */
 .espn-game-teams {
     display: flex;
@@ -267,6 +295,44 @@
 .espn-upcoming-vs {
     color: #999;
     font-size: 14px;
+    font-weight: 700;
+}
+
+/* Venue do Upcoming */
+.espn-upcoming-venue {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 10px;
+    padding: 6px 8px;
+    background: #f5f5f5;
+    border-radius: 4px;
+    font-size: 11px;
+    color: #666;
+}
+
+.espn-upcoming-venue .espn-venue-name {
+    font-weight: 600;
+    color: #444;
+    font-size: 11px;
+}
+
+.espn-upcoming-venue .espn-venue-city {
+    color: #777;
+    font-size: 11px;
+}
+
+/* Time com Logo no Upcoming */
+.espn-upcoming-team-with-logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.espn-upcoming-team-with-logo .espn-team-logo-small {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
 }
 
 /* Calendário do Time */
