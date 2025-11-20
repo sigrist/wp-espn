@@ -993,6 +993,9 @@ class WP_ESPN_Shortcodes {
             $atts['title'] = $this->get_soccer_league_name($atts['league']) . ' - Próximos Jogos';
         }
 
+        // Força o esporte para soccer
+        $atts['sport'] = 'soccer';
+
         // Para futebol, upcoming busca por range de datas futuras
         $today = date('Ymd');
         $future_date = date('Ymd', strtotime('+' . $atts['days'] . ' days'));
